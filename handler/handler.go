@@ -34,6 +34,13 @@ func (handler Handler) CreateEmployeeHandler(c *gin.Context) {
 
 	response, err := handler.ServiceInterface.CreateEmployees(payLoad.Employees)
 
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": "Create Employees failed due to a database error",
+		})
+		return
+	}
+
 	c.JSON(200, response)
 }
 
