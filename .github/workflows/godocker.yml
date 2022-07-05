@@ -16,7 +16,7 @@ env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: pxreg.azurecr.io
   # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.projectx }}
+  IMAGE_NAME: projectx
   DOCKER_USER: PXreg
 
 
