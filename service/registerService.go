@@ -7,7 +7,7 @@ import (
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . DatabaseInterface
 type DatabaseInterface interface {
 	UpdateMany(docs []interface{}) (interface{}, error)
-	GetByID(id string) model.Employee
+	GetByID(id string) (model.Employee, error)
 }
 
 type EmployeeService struct {
@@ -37,6 +37,11 @@ func (s EmployeeService) CreateEmployees(employees []model.Employee) (interface{
 	return response, nil
 }
 
-func (s EmployeeService) GetEmployeeById(id string) model.Employee {
-	return s.DbService.GetByID(id)
+func (s EmployeeService) GetEmployeeById(id string) (model.Employee, error) {
+	response, err := s.DbService.GetByID(id)
+	if err != nil {
+		return response, err
+	}
+
+	return response, nil
 }
