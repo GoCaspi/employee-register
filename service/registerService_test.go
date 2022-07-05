@@ -10,23 +10,41 @@ import (
 )
 
 func TestGetEmployeeById(t *testing.T) {
-	/*
-		fakeDB := &servicefakes.FakeDatabaseInterface{}
 
-		data := model.Employee{
-			ID:        "1",
-			FirstName: "jon",
-			LastName:  "kock",
-			Email:     "jon@gmail.com",
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	fakeErr := errors.New("")
+	data := model.Employee{
+		ID:        "1",
+		FirstName: "jon",
+		LastName:  "kock",
+		Email:     "jon@gmail.com",
+	}
+
+	var tests = []struct {
+		hasError  bool
+		Data      model.Employee
+		FakeError error
+	}{
+		{false, data, nil},
+		{true, data, fakeErr},
+	}
+
+	for _, tt := range tests {
+
+		if tt.hasError {
+			fakeDB.GetByIDReturns(tt.Data, tt.FakeError)
+			serviceInstance := service.NewEmployeeService(fakeDB)
+			actual, err := serviceInstance.GetEmployeeById(tt.Data.ID)
+			assert.Equal(t, tt.Data, actual)
+			assert.Equal(t, tt.FakeError, err)
 		}
 
-		fakeDB.GetByIDReturns(data)
-
+		fakeDB.GetByIDReturns(tt.Data, tt.FakeError)
 		serviceInstance := service.NewEmployeeService(fakeDB)
-		actual := serviceInstance.GetEmployeeById("1")
+		actual, err := serviceInstance.GetEmployeeById(tt.Data.ID)
 		assert.Equal(t, data, actual)
-
-	*/
+		assert.Equal(t, tt.FakeError, err)
+	}
 
 }
 

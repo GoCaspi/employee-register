@@ -14,22 +14,61 @@ import (
 	"testing"
 )
 
-func TestGetEmployeeHandler_Return_valid_status_code(t *testing.T) {
-	responseRecoder := httptest.NewRecorder()
-
-	fakeContest, _ := gin.CreateTestContext(responseRecoder)
-	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "id", Value: "1"})
-
-	fakeService := &handlerfakes.FakeServiceInterface{}
-	fakeService.GetEmployeeByIdReturns(model.Employee{
+func TestHandler_GetEmployeeById(t *testing.T) {
+	fakeErr := errors.New("")
+	mockEmp := model.Employee{
 		ID:        "1",
 		FirstName: "Joe",
-	})
+	}
+	var tests = []struct {
+		badParams  bool
+		serviceErr bool
+		employee   model.Employee
+	}{
+		{false, false, mockEmp},
+		{true, false, mockEmp},
+		{false, true, mockEmp},
+	}
 
-	handlerInstance := handler.NewHandler(fakeService)
-	handlerInstance.GetEmployeeHandler(fakeContest)
+	for _, tt := range tests {
 
-	assert.Equal(t, http.StatusOK, responseRecoder.Code)
+		if !tt.serviceErr && !tt.badParams {
+			responseRecoder := httptest.NewRecorder()
+
+			fakeContest, _ := gin.CreateTestContext(responseRecoder)
+			fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "id", Value: tt.employee.ID})
+			fakeService := &handlerfakes.FakeServiceInterface{}
+			fakeService.GetEmployeeByIdReturns(tt.employee, nil)
+			handlerInstance := handler.NewHandler(fakeService)
+			handlerInstance.GetEmployeeHandler(fakeContest)
+			assert.Equal(t, http.StatusOK, responseRecoder.Code)
+		}
+
+		if tt.badParams {
+			responseRecoder := httptest.NewRecorder()
+
+			fakeContest, _ := gin.CreateTestContext(responseRecoder)
+			fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "i", Value: "1"})
+			fakeService := &handlerfakes.FakeServiceInterface{}
+			fakeService.GetEmployeeByIdReturns(tt.employee, nil)
+			handlerInstance := handler.NewHandler(fakeService)
+			handlerInstance.GetEmployeeHandler(fakeContest)
+			assert.Equal(t, http.StatusBadRequest, responseRecoder.Code)
+		}
+
+		if tt.serviceErr {
+			responseRecoder := httptest.NewRecorder()
+
+			fakeContest, _ := gin.CreateTestContext(responseRecoder)
+			fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "id", Value: tt.employee.ID})
+			fakeService := &handlerfakes.FakeServiceInterface{}
+			fakeService.GetEmployeeByIdReturns(tt.employee, fakeErr)
+			handlerInstance := handler.NewHandler(fakeService)
+			handlerInstance.GetEmployeeHandler(fakeContest)
+			assert.Equal(t, http.StatusBadRequest, responseRecoder.Code)
+		}
+
+	}
 
 }
 
