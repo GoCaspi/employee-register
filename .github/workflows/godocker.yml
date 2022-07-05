@@ -8,14 +8,17 @@ name: Docker
 on:
   push:
     branches: [ "master", "dev" ]
+    # Publish semver tags as releases.
+    tags: [ 'v*.*.*' ]
   pull_request:
-    branches: [ "master", "dev" ]
+    branches: [ "master" ]
 
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: pxreg.azurecr.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.projectx }}
+  DOCKER_USER: PXreg
 
 
 jobs:
@@ -53,6 +56,8 @@ jobs:
         uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
         with:
           registry: ${{ env.REGISTRY }}
+          username: ${{ env.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
