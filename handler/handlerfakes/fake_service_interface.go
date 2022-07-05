@@ -8,16 +8,18 @@ import (
 )
 
 type FakeServiceInterface struct {
-	CreateEmployeesStub        func([]model.Employee) interface{}
+	CreateEmployeesStub        func([]model.Employee) (interface{}, error)
 	createEmployeesMutex       sync.RWMutex
 	createEmployeesArgsForCall []struct {
 		arg1 []model.Employee
 	}
 	createEmployeesReturns struct {
 		result1 interface{}
+		result2 error
 	}
 	createEmployeesReturnsOnCall map[int]struct {
 		result1 interface{}
+		result2 error
 	}
 	GetEmployeeByIdStub        func(string) model.Employee
 	getEmployeeByIdMutex       sync.RWMutex
@@ -34,7 +36,7 @@ type FakeServiceInterface struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeServiceInterface) CreateEmployees(arg1 []model.Employee) interface{} {
+func (fake *FakeServiceInterface) CreateEmployees(arg1 []model.Employee) (interface{}, error) {
 	var arg1Copy []model.Employee
 	if arg1 != nil {
 		arg1Copy = make([]model.Employee, len(arg1))
@@ -53,9 +55,9 @@ func (fake *FakeServiceInterface) CreateEmployees(arg1 []model.Employee) interfa
 		return stub(arg1)
 	}
 	if specificReturn {
-		return ret.result1
+		return ret.result1, ret.result2
 	}
-	return fakeReturns.result1
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeServiceInterface) CreateEmployeesCallCount() int {
@@ -64,7 +66,7 @@ func (fake *FakeServiceInterface) CreateEmployeesCallCount() int {
 	return len(fake.createEmployeesArgsForCall)
 }
 
-func (fake *FakeServiceInterface) CreateEmployeesCalls(stub func([]model.Employee) interface{}) {
+func (fake *FakeServiceInterface) CreateEmployeesCalls(stub func([]model.Employee) (interface{}, error)) {
 	fake.createEmployeesMutex.Lock()
 	defer fake.createEmployeesMutex.Unlock()
 	fake.CreateEmployeesStub = stub
@@ -77,27 +79,30 @@ func (fake *FakeServiceInterface) CreateEmployeesArgsForCall(i int) []model.Empl
 	return argsForCall.arg1
 }
 
-func (fake *FakeServiceInterface) CreateEmployeesReturns(result1 interface{}) {
+func (fake *FakeServiceInterface) CreateEmployeesReturns(result1 interface{}, result2 error) {
 	fake.createEmployeesMutex.Lock()
 	defer fake.createEmployeesMutex.Unlock()
 	fake.CreateEmployeesStub = nil
 	fake.createEmployeesReturns = struct {
 		result1 interface{}
-	}{result1}
+		result2 error
+	}{result1, result2}
 }
 
-func (fake *FakeServiceInterface) CreateEmployeesReturnsOnCall(i int, result1 interface{}) {
+func (fake *FakeServiceInterface) CreateEmployeesReturnsOnCall(i int, result1 interface{}, result2 error) {
 	fake.createEmployeesMutex.Lock()
 	defer fake.createEmployeesMutex.Unlock()
 	fake.CreateEmployeesStub = nil
 	if fake.createEmployeesReturnsOnCall == nil {
 		fake.createEmployeesReturnsOnCall = make(map[int]struct {
 			result1 interface{}
+			result2 error
 		})
 	}
 	fake.createEmployeesReturnsOnCall[i] = struct {
 		result1 interface{}
-	}{result1}
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeServiceInterface) GetEmployeeById(arg1 string) model.Employee {
