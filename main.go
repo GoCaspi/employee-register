@@ -16,8 +16,8 @@ func main() {
 		log.Println("Error loading .env file")
 	}
 	databaseClient := datasource.NewDbClient(model.DbConfig{
-		URL:      os.Getenv("MONGO_URL"),
-		Database: "office",
+		URL:       os.Getenv("MONGO_URL"),
+		Database:  "office",
 	})
 	engine := middleware.SetupEngine([]gin.HandlerFunc{middleware.SetupService(databaseClient)})
 	engine.Run(":9090")
