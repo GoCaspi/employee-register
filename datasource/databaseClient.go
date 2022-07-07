@@ -36,14 +36,13 @@ func (c Client) UpdateMany(docs []interface{}) (interface{}, error) {
 	return results.InsertedIDs, nil
 }
 
-func (c Client) GetByID(id string) (model.Employee, error) {
+func (c Client) GetByID(id string) model.Employee {
 	filter := bson.M{"id": id}
 	courser := c.Employee.FindOne(context.TODO(), filter)
 	var employee model.Employee
 	err := courser.Decode(&employee)
 	if err != nil {
 		log.Println("error during data marshalling")
-		return model.Employee{}, err
 	}
-	return employee, nil
+	return employee
 }

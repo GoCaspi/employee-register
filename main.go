@@ -5,14 +5,19 @@ import (
 	"example-project/middleware"
 	"example-project/model"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"log"
+	"os"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Error loading .env file")
+	}
 	databaseClient := datasource.NewDbClient(model.DbConfig{
-		URL: "mongodb://localhost:27017",
-		// if mongo db is not down use commented url:
-		//	URL:      "mongodb://pxdb:F5kUshuDdp8QMHtdc2WuoufKjzpLqoCOb1pyQGtBFi2YQCY7XQtC5B4uKq9se5yk2PJjbgTVCi3hz5y8A16KAA==@pxdb.mongo.cosmos.azure.com:10255/?ssl=true&retrywrites=false&maxIdleTimeMS=120000&appName=@pxdb@",
-		Database: "office",
+		URL:       os.Getenv("MONGO_URL"),
+		Database:  "office",
 	})
 	engine := middleware.SetupEngine([]gin.HandlerFunc{middleware.SetupService(databaseClient)})
 	engine.Run(":9090")

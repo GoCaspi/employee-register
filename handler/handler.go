@@ -9,7 +9,7 @@ import (
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . ServiceInterface
 type ServiceInterface interface {
 	CreateEmployees(employees []model.Employee) (interface{}, error)
-	GetEmployeeById(id string) (model.Employee, error)
+	GetEmployeeById(id string) model.Employee
 }
 
 type Handler struct {
@@ -34,13 +34,6 @@ func (handler Handler) CreateEmployeeHandler(c *gin.Context) {
 
 	response, err := handler.ServiceInterface.CreateEmployees(payLoad.Employees)
 
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"errorMessage": "Create Employees failed due to a database error",
-		})
-		return
-	}
-
 	c.JSON(200, response)
 }
 
@@ -53,13 +46,6 @@ func (handler Handler) GetEmployeeHandler(c *gin.Context) {
 		return
 	}
 
-	response, err := handler.ServiceInterface.GetEmployeeById(pathParam)
-
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"errorMessage": "Employee to that id was not found",
-		})
-		return
-	}
+	response := handler.ServiceInterface.GetEmployeeById(pathParam)
 	c.JSON(http.StatusOK, response)
 }
