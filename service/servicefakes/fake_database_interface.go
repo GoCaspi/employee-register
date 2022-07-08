@@ -19,16 +19,18 @@ type FakeDatabaseInterface struct {
 	getByIDReturnsOnCall map[int]struct {
 		result1 model.Employee
 	}
-	UpdateManyStub        func([]interface{}) interface{}
+	UpdateManyStub        func([]interface{}) (interface{}, error)
 	updateManyMutex       sync.RWMutex
 	updateManyArgsForCall []struct {
 		arg1 []interface{}
 	}
 	updateManyReturns struct {
 		result1 interface{}
+		result2 error
 	}
 	updateManyReturnsOnCall map[int]struct {
 		result1 interface{}
+		result2 error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
@@ -95,7 +97,7 @@ func (fake *FakeDatabaseInterface) GetByIDReturnsOnCall(i int, result1 model.Emp
 	}{result1}
 }
 
-func (fake *FakeDatabaseInterface) UpdateMany(arg1 []interface{}) interface{} {
+func (fake *FakeDatabaseInterface) UpdateMany(arg1 []interface{}) (interface{}, error) {
 	var arg1Copy []interface{}
 	if arg1 != nil {
 		arg1Copy = make([]interface{}, len(arg1))
@@ -114,9 +116,9 @@ func (fake *FakeDatabaseInterface) UpdateMany(arg1 []interface{}) interface{} {
 		return stub(arg1)
 	}
 	if specificReturn {
-		return ret.result1
+		return ret.result1, ret.result2
 	}
-	return fakeReturns.result1
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeDatabaseInterface) UpdateManyCallCount() int {
@@ -125,7 +127,7 @@ func (fake *FakeDatabaseInterface) UpdateManyCallCount() int {
 	return len(fake.updateManyArgsForCall)
 }
 
-func (fake *FakeDatabaseInterface) UpdateManyCalls(stub func([]interface{}) interface{}) {
+func (fake *FakeDatabaseInterface) UpdateManyCalls(stub func([]interface{}) (interface{}, error)) {
 	fake.updateManyMutex.Lock()
 	defer fake.updateManyMutex.Unlock()
 	fake.UpdateManyStub = stub
@@ -138,27 +140,30 @@ func (fake *FakeDatabaseInterface) UpdateManyArgsForCall(i int) []interface{} {
 	return argsForCall.arg1
 }
 
-func (fake *FakeDatabaseInterface) UpdateManyReturns(result1 interface{}) {
+func (fake *FakeDatabaseInterface) UpdateManyReturns(result1 interface{}, result2 error) {
 	fake.updateManyMutex.Lock()
 	defer fake.updateManyMutex.Unlock()
 	fake.UpdateManyStub = nil
 	fake.updateManyReturns = struct {
 		result1 interface{}
-	}{result1}
+		result2 error
+	}{result1, result2}
 }
 
-func (fake *FakeDatabaseInterface) UpdateManyReturnsOnCall(i int, result1 interface{}) {
+func (fake *FakeDatabaseInterface) UpdateManyReturnsOnCall(i int, result1 interface{}, result2 error) {
 	fake.updateManyMutex.Lock()
 	defer fake.updateManyMutex.Unlock()
 	fake.UpdateManyStub = nil
 	if fake.updateManyReturnsOnCall == nil {
 		fake.updateManyReturnsOnCall = make(map[int]struct {
 			result1 interface{}
+			result2 error
 		})
 	}
 	fake.updateManyReturnsOnCall[i] = struct {
 		result1 interface{}
-	}{result1}
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeDatabaseInterface) Invocations() map[string][][]interface{} {
