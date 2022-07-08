@@ -8,6 +8,7 @@ import (
 type HandlerInterface interface {
 	CreateEmployeeHandler(c *gin.Context)
 	GetEmployeeHandler(c *gin.Context)
+	Login(c *gin.Context)
 }
 
 var Handler HandlerInterface
@@ -16,4 +17,5 @@ func CreateRoutes(group *gin.RouterGroup) {
 	route := group.Group("/employee")
 	route.GET("/:id/get", Handler.GetEmployeeHandler)
 	route.POST("/create", Handler.CreateEmployeeHandler)
+	route.POST("/Login", Handler.Login)
 }
