@@ -2,6 +2,7 @@ package datasource
 
 import (
 	"context"
+	"errors"
 	"example-project/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -13,6 +14,7 @@ import (
 type MongoDBInterface interface {
 	FindOne(ctx context.Context, filter interface{}, opts ...*options.FindOneOptions) *mongo.SingleResult
 	InsertMany(ctx context.Context, documents []interface{}, opts ...*options.InsertManyOptions) (*mongo.InsertManyResult, error)
+	DeleteOne(ctx context.Context, filter interface{}, opts ...*options.DeleteOptions) (*mongo.DeleteResult, error)
 }
 
 type Client struct {
@@ -45,4 +47,20 @@ func (c Client) GetByID(id string) model.Employee {
 		log.Println("error during data marshalling")
 	}
 	return employee
+}
+
+func (c Client) DeleteByID(id string) (interface{}, error) {
+	filter := bson.M{"id": id}
+
+	results, err := c.Employee.DeleteOne(context.TODO(), filter)
+
+	if err != nil {
+
+		return nil, err
+	}
+	if results.DeletedCount == 0 {
+		deleterror := errors.New("the Employee id is not existing")
+		return nil, deleterror
+	}
+	return results.DeletedCount, nil
 }

@@ -10,6 +10,7 @@ import (
 type ServiceInterface interface {
 	CreateEmployees(employees []model.Employee) (interface{}, error)
 	GetEmployeeById(id string) model.Employee
+	DeleteEmployee(id string) (interface{}, error)
 }
 
 type Handler struct {
@@ -47,5 +48,26 @@ func (handler Handler) GetEmployeeHandler(c *gin.Context) {
 	}
 
 	response := handler.ServiceInterface.GetEmployeeById(pathParam)
+	c.JSON(http.StatusOK, response)
+}
+
+func (handler Handler) DeleteByIdHandler(c *gin.Context) {
+	pathParam, ok := c.Params.Get("id")
+
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+
+			"errorMessage": "id is not found",
+		})
+		return
+	}
+	response, err := handler.ServiceInterface.DeleteEmployee(pathParam)
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
 	c.JSON(http.StatusOK, response)
 }
