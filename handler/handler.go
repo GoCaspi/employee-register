@@ -45,7 +45,13 @@ func (handler Handler) CreateEmployeeHandler(c *gin.Context) {
 
 	employees := payLoad.Employees
 	hashedEmployees := utility.HashEmployees(employees)
-
+	index, _ := handler.DoUserExist(hashedEmployees)
+	if index {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": "There cannot be duplicated Ids!",
+		})
+		return
+	}
 	response, err := handler.ServiceInterface.CreateEmployees(hashedEmployees)
 
 	c.JSON(200, response)
@@ -113,4 +119,32 @@ func (handler Handler) Login(c *gin.Context) {
 	c.AbortWithStatusJSON(401, errMsg)
 	c.Writer.Header().Set("WWW-Authenticate", `Basic realm="restricted", charset="UTF-8"`)
 	return
+}
+
+func (handler Handler) DoUserExist(emp []model.Employee) (bool, []model.Employee) {
+	var idList []string
+	var errorEmployees []model.Employee
+
+	for _, employee := range emp {
+		response := handler.ServiceInterface.GetEmployeeById(employee.ID)
+		if len(response.ID) != 0 {
+			errorEmployees = append(errorEmployees, employee)
+		} else {
+			idList = append(idList, employee.ID)
+			var idCount int = 0
+			for _, id := range idList {
+				if id == employee.ID {
+					idCount++
+				}
+			}
+			if idCount >= 2 {
+				errorEmployees = append(errorEmployees, employee)
+			}
+		}
+	}
+	if len(errorEmployees) != 0 {
+		return true, errorEmployees
+	} else {
+		return false, nil
+	}
 }
