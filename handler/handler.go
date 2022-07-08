@@ -148,3 +148,47 @@ func (handler Handler) DoUserExist(emp []model.Employee) (bool, []model.Employee
 		return false, nil
 	}
 }
+
+// TokenCheck validates if a valid token was submitted
+func (handler Handler) ValidateToken(c *gin.Context) {
+
+	// if no Baerer Token is provided Abort with error message
+	if len(c.Request.Header.Values("Authorization")) < 1 {
+		c.AbortWithStatusJSON(403, noTokenErr)
+		return
+	}
+	// read the value of the baerer token
+
+	reqToken := utility.GetBearerToken(c)
+
+	// check if the provided token is in cache. If the token is not in cache abort with error message
+	tokenIsValid := cache.TokenIsInMap(reqToken, MyCacheMap)
+	//	tokenIsValid := myCache.CheckIfTokenIsInCache(reqToken)
+	if !tokenIsValid {
+		c.AbortWithStatusJSON(401, noTokenErr)
+
+	} else {
+		return
+	}
+}
+
+func (handler Handler) Logout(c *gin.Context) {
+	// reads the id from the query parameters
+	id, keyIsPresent := c.GetQuery("id")
+	errMsg := noEmployeeFound
+	if !keyIsPresent {
+		c.AbortWithStatusJSON(400, errMsg)
+		return
+	}
+	// checks if the provided token is in cache (meaning its a valid token)
+	tokenIsInCache := cache.IdIsInMap(id, MyCacheMap)
+	successMessage := "Logut successfull. Your token is no longer valid."
+	failMessage := "The provided token is not valid. Please login to generate a valid token."
+
+	if tokenIsInCache {
+		MyCacheMap = cache.RemoveFromCacheMap(id, MyCacheMap)
+		c.JSON(200, successMessage)
+	} else {
+		c.JSON(400, failMessage)
+	}
+}

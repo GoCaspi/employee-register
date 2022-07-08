@@ -3,6 +3,8 @@ package utility
 import (
 	"crypto/sha256"
 	"example-project/model"
+	"github.com/gin-gonic/gin"
+	"strings"
 )
 
 func HashUsernameAndPassword(payLoad model.Auth) model.HashedAuth {
@@ -28,4 +30,11 @@ func HashEmployees(emps []model.EmployeePayload) []model.Employee {
 		hashedEmps = append(hashedEmps, hashedEmp)
 	}
 	return hashedEmps
+}
+
+func GetBearerToken(c *gin.Context) string {
+	reqToken := c.Request.Header.Get("Authorization")
+	splitToken := strings.Split(reqToken, "Bearer ")
+	reqToken = splitToken[1]
+	return reqToken
 }
