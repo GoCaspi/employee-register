@@ -14,6 +14,11 @@ type FakeHandlerInterface struct {
 	createEmployeeHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
+	DeleteByIdHandlerStub        func(*gin.Context)
+	deleteByIdHandlerMutex       sync.RWMutex
+	deleteByIdHandlerArgsForCall []struct {
+		arg1 *gin.Context
+	}
 	GetEmployeeHandlerStub        func(*gin.Context)
 	getEmployeeHandlerMutex       sync.RWMutex
 	getEmployeeHandlerArgsForCall []struct {
@@ -55,6 +60,38 @@ func (fake *FakeHandlerInterface) CreateEmployeeHandlerArgsForCall(i int) *gin.C
 	return argsForCall.arg1
 }
 
+func (fake *FakeHandlerInterface) DeleteByIdHandler(arg1 *gin.Context) {
+	fake.deleteByIdHandlerMutex.Lock()
+	fake.deleteByIdHandlerArgsForCall = append(fake.deleteByIdHandlerArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.DeleteByIdHandlerStub
+	fake.recordInvocation("DeleteByIdHandler", []interface{}{arg1})
+	fake.deleteByIdHandlerMutex.Unlock()
+	if stub != nil {
+		fake.DeleteByIdHandlerStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) DeleteByIdHandlerCallCount() int {
+	fake.deleteByIdHandlerMutex.RLock()
+	defer fake.deleteByIdHandlerMutex.RUnlock()
+	return len(fake.deleteByIdHandlerArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) DeleteByIdHandlerCalls(stub func(*gin.Context)) {
+	fake.deleteByIdHandlerMutex.Lock()
+	defer fake.deleteByIdHandlerMutex.Unlock()
+	fake.DeleteByIdHandlerStub = stub
+}
+
+func (fake *FakeHandlerInterface) DeleteByIdHandlerArgsForCall(i int) *gin.Context {
+	fake.deleteByIdHandlerMutex.RLock()
+	defer fake.deleteByIdHandlerMutex.RUnlock()
+	argsForCall := fake.deleteByIdHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
 func (fake *FakeHandlerInterface) GetEmployeeHandler(arg1 *gin.Context) {
 	fake.getEmployeeHandlerMutex.Lock()
 	fake.getEmployeeHandlerArgsForCall = append(fake.getEmployeeHandlerArgsForCall, struct {
@@ -92,6 +129,8 @@ func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	defer fake.invocationsMutex.RUnlock()
 	fake.createEmployeeHandlerMutex.RLock()
 	defer fake.createEmployeeHandlerMutex.RUnlock()
+	fake.deleteByIdHandlerMutex.RLock()
+	defer fake.deleteByIdHandlerMutex.RUnlock()
 	fake.getEmployeeHandlerMutex.RLock()
 	defer fake.getEmployeeHandlerMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

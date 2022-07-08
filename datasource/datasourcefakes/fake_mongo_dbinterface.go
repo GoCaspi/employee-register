@@ -11,6 +11,21 @@ import (
 )
 
 type FakeMongoDBInterface struct {
+	DeleteOneStub        func(context.Context, interface{}, ...*options.DeleteOptions) (*mongo.DeleteResult, error)
+	deleteOneMutex       sync.RWMutex
+	deleteOneArgsForCall []struct {
+		arg1 context.Context
+		arg2 interface{}
+		arg3 []*options.DeleteOptions
+	}
+	deleteOneReturns struct {
+		result1 *mongo.DeleteResult
+		result2 error
+	}
+	deleteOneReturnsOnCall map[int]struct {
+		result1 *mongo.DeleteResult
+		result2 error
+	}
 	FindOneStub        func(context.Context, interface{}, ...*options.FindOneOptions) *mongo.SingleResult
 	findOneMutex       sync.RWMutex
 	findOneArgsForCall []struct {
@@ -41,6 +56,72 @@ type FakeMongoDBInterface struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *FakeMongoDBInterface) DeleteOne(arg1 context.Context, arg2 interface{}, arg3 ...*options.DeleteOptions) (*mongo.DeleteResult, error) {
+	fake.deleteOneMutex.Lock()
+	ret, specificReturn := fake.deleteOneReturnsOnCall[len(fake.deleteOneArgsForCall)]
+	fake.deleteOneArgsForCall = append(fake.deleteOneArgsForCall, struct {
+		arg1 context.Context
+		arg2 interface{}
+		arg3 []*options.DeleteOptions
+	}{arg1, arg2, arg3})
+	stub := fake.DeleteOneStub
+	fakeReturns := fake.deleteOneReturns
+	fake.recordInvocation("DeleteOne", []interface{}{arg1, arg2, arg3})
+	fake.deleteOneMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3...)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeMongoDBInterface) DeleteOneCallCount() int {
+	fake.deleteOneMutex.RLock()
+	defer fake.deleteOneMutex.RUnlock()
+	return len(fake.deleteOneArgsForCall)
+}
+
+func (fake *FakeMongoDBInterface) DeleteOneCalls(stub func(context.Context, interface{}, ...*options.DeleteOptions) (*mongo.DeleteResult, error)) {
+	fake.deleteOneMutex.Lock()
+	defer fake.deleteOneMutex.Unlock()
+	fake.DeleteOneStub = stub
+}
+
+func (fake *FakeMongoDBInterface) DeleteOneArgsForCall(i int) (context.Context, interface{}, []*options.DeleteOptions) {
+	fake.deleteOneMutex.RLock()
+	defer fake.deleteOneMutex.RUnlock()
+	argsForCall := fake.deleteOneArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeMongoDBInterface) DeleteOneReturns(result1 *mongo.DeleteResult, result2 error) {
+	fake.deleteOneMutex.Lock()
+	defer fake.deleteOneMutex.Unlock()
+	fake.DeleteOneStub = nil
+	fake.deleteOneReturns = struct {
+		result1 *mongo.DeleteResult
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeMongoDBInterface) DeleteOneReturnsOnCall(i int, result1 *mongo.DeleteResult, result2 error) {
+	fake.deleteOneMutex.Lock()
+	defer fake.deleteOneMutex.Unlock()
+	fake.DeleteOneStub = nil
+	if fake.deleteOneReturnsOnCall == nil {
+		fake.deleteOneReturnsOnCall = make(map[int]struct {
+			result1 *mongo.DeleteResult
+			result2 error
+		})
+	}
+	fake.deleteOneReturnsOnCall[i] = struct {
+		result1 *mongo.DeleteResult
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeMongoDBInterface) FindOne(arg1 context.Context, arg2 interface{}, arg3 ...*options.FindOneOptions) *mongo.SingleResult {
@@ -180,6 +261,8 @@ func (fake *FakeMongoDBInterface) InsertManyReturnsOnCall(i int, result1 *mongo.
 func (fake *FakeMongoDBInterface) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.deleteOneMutex.RLock()
+	defer fake.deleteOneMutex.RUnlock()
 	fake.findOneMutex.RLock()
 	defer fake.findOneMutex.RUnlock()
 	fake.insertManyMutex.RLock()
