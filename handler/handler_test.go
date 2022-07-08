@@ -80,7 +80,7 @@ func TestHandler_Logout(t *testing.T) {
 
 }
 
-func TestHandler_TokenCheck(t *testing.T) {
+func TestHandler_ValidateToken(t *testing.T) {
 	uuid := uuid.New()
 	uuidString := uuid.String()
 
