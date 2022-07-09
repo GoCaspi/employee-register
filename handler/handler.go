@@ -15,6 +15,7 @@ import (
 type ServiceInterface interface {
 	CreateEmployees(employees []model.Employee) (interface{}, error)
 	GetEmployeeById(id string) model.Employee
+	DeleteEmployee(id string) (interface{}, error)
 }
 
 var MyCacheMap = cache.NewCacheMap{}
@@ -191,4 +192,25 @@ func (handler Handler) Logout(c *gin.Context) {
 	} else {
 		c.JSON(400, failMessage)
 	}
+}
+
+func (handler Handler) DeleteByIdHandler(c *gin.Context) {
+	pathParam, ok := c.Params.Get("id")
+
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+
+			"errorMessage": "id is not found",
+		})
+		return
+	}
+	response, err := handler.ServiceInterface.DeleteEmployee(pathParam)
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, response)
 }

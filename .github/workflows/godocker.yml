@@ -14,10 +14,10 @@ on:
 
 env:
   # Use docker.io for Docker Hub if empty
-  REGISTRY: pxreg.azurecr.io
+  REGISTRY: on4treg.azurecr.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: projectx
-  DOCKER_USER: PXreg
+  DOCKER_USER: on4treg
 
 
 jobs:

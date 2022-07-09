@@ -11,6 +11,7 @@ type HandlerInterface interface {
 	Login(c *gin.Context)
 	Logout(c *gin.Context)
 	ValidateToken(c *gin.Context)
+	DeleteByIdHandler(c *gin.Context)
 }
 
 var Handler HandlerInterface
@@ -22,7 +23,7 @@ func CreateRoutes(group *gin.RouterGroup) {
 	group.POST("/register", Handler.CreateEmployeeHandler)
 
 	route := group.Group("/employee")
-	route.Use(Handler.ValidateToken)
 	route.GET("/:id/get", Handler.GetEmployeeHandler)
 	route.POST("/create", Handler.CreateEmployeeHandler)
+	route.DELETE("/:id/delete", Handler.DeleteByIdHandler)
 }
