@@ -23,6 +23,7 @@ func CreateRoutes(group *gin.RouterGroup) {
 	group.POST("/register", Handler.CreateEmployeeHandler)
 
 	route := group.Group("/employee")
+	route.Use(Handler.ValidateToken)
 	route.GET("/:id/get", Handler.GetEmployeeHandler)
 	route.POST("/create", Handler.CreateEmployeeHandler)
 	route.DELETE("/:id/delete", Handler.DeleteByIdHandler)

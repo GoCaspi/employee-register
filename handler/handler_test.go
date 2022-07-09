@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/json"
-	"example-project/cache"
 	"errors"
+	"example-project/cache"
 	"example-project/handler"
 	"example-project/handler/handlerfakes"
 	"example-project/model"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
@@ -282,7 +284,6 @@ func TestHandler_Login_Return_InvalidStatusCode_InvalidPayloadInPostRequest(t *t
 	handlerInstance.Login(fakeContest)
 
 	assert.Contains(t, responseRecoder.Body.String(), expectedErrorMsg)
-	//	assert.Equal(t, http.StatusOK, responseRecoder.Code)
 }
 func TestHandler_Login_Return_InvalidStatusCode_PostedUsernameAndPassword_DontMatchSavedDataInDatabase(t *testing.T) {
 	responseRecoder := httptest.NewRecorder()
@@ -356,7 +357,6 @@ func TestHandler_Login_Return_InvalidStatusCode_QueryKeyIsWrong(t *testing.T) {
 	handlerInstance.Login(fakeContest)
 
 	assert.Contains(t, responseRecoder.Body.String(), expectedErrorMsg)
-	//	assert.Equal(t, http.StatusOK, responseRecoder.Code)
 }
 
 func TestHandler_DoUserExist(t *testing.T) {

@@ -24,6 +24,21 @@ type FakeHandlerInterface struct {
 	getEmployeeHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
+	LoginStub        func(*gin.Context)
+	loginMutex       sync.RWMutex
+	loginArgsForCall []struct {
+		arg1 *gin.Context
+	}
+	LogoutStub        func(*gin.Context)
+	logoutMutex       sync.RWMutex
+	logoutArgsForCall []struct {
+		arg1 *gin.Context
+	}
+	ValidateTokenStub        func(*gin.Context)
+	validateTokenMutex       sync.RWMutex
+	validateTokenArgsForCall []struct {
+		arg1 *gin.Context
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -124,6 +139,102 @@ func (fake *FakeHandlerInterface) GetEmployeeHandlerArgsForCall(i int) *gin.Cont
 	return argsForCall.arg1
 }
 
+func (fake *FakeHandlerInterface) Login(arg1 *gin.Context) {
+	fake.loginMutex.Lock()
+	fake.loginArgsForCall = append(fake.loginArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.LoginStub
+	fake.recordInvocation("Login", []interface{}{arg1})
+	fake.loginMutex.Unlock()
+	if stub != nil {
+		fake.LoginStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) LoginCallCount() int {
+	fake.loginMutex.RLock()
+	defer fake.loginMutex.RUnlock()
+	return len(fake.loginArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) LoginCalls(stub func(*gin.Context)) {
+	fake.loginMutex.Lock()
+	defer fake.loginMutex.Unlock()
+	fake.LoginStub = stub
+}
+
+func (fake *FakeHandlerInterface) LoginArgsForCall(i int) *gin.Context {
+	fake.loginMutex.RLock()
+	defer fake.loginMutex.RUnlock()
+	argsForCall := fake.loginArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeHandlerInterface) Logout(arg1 *gin.Context) {
+	fake.logoutMutex.Lock()
+	fake.logoutArgsForCall = append(fake.logoutArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.LogoutStub
+	fake.recordInvocation("Logout", []interface{}{arg1})
+	fake.logoutMutex.Unlock()
+	if stub != nil {
+		fake.LogoutStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) LogoutCallCount() int {
+	fake.logoutMutex.RLock()
+	defer fake.logoutMutex.RUnlock()
+	return len(fake.logoutArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) LogoutCalls(stub func(*gin.Context)) {
+	fake.logoutMutex.Lock()
+	defer fake.logoutMutex.Unlock()
+	fake.LogoutStub = stub
+}
+
+func (fake *FakeHandlerInterface) LogoutArgsForCall(i int) *gin.Context {
+	fake.logoutMutex.RLock()
+	defer fake.logoutMutex.RUnlock()
+	argsForCall := fake.logoutArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeHandlerInterface) ValidateToken(arg1 *gin.Context) {
+	fake.validateTokenMutex.Lock()
+	fake.validateTokenArgsForCall = append(fake.validateTokenArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.ValidateTokenStub
+	fake.recordInvocation("ValidateToken", []interface{}{arg1})
+	fake.validateTokenMutex.Unlock()
+	if stub != nil {
+		fake.ValidateTokenStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) ValidateTokenCallCount() int {
+	fake.validateTokenMutex.RLock()
+	defer fake.validateTokenMutex.RUnlock()
+	return len(fake.validateTokenArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) ValidateTokenCalls(stub func(*gin.Context)) {
+	fake.validateTokenMutex.Lock()
+	defer fake.validateTokenMutex.Unlock()
+	fake.ValidateTokenStub = stub
+}
+
+func (fake *FakeHandlerInterface) ValidateTokenArgsForCall(i int) *gin.Context {
+	fake.validateTokenMutex.RLock()
+	defer fake.validateTokenMutex.RUnlock()
+	argsForCall := fake.validateTokenArgsForCall[i]
+	return argsForCall.arg1
+}
+
 func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
@@ -133,6 +244,12 @@ func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	defer fake.deleteByIdHandlerMutex.RUnlock()
 	fake.getEmployeeHandlerMutex.RLock()
 	defer fake.getEmployeeHandlerMutex.RUnlock()
+	fake.loginMutex.RLock()
+	defer fake.loginMutex.RUnlock()
+	fake.logoutMutex.RLock()
+	defer fake.logoutMutex.RUnlock()
+	fake.validateTokenMutex.RLock()
+	defer fake.validateTokenMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value
