@@ -1,6 +1,9 @@
 package handler_test
 
 import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/json"
 	"example-project/cache"
 	"example-project/handler"
 	"example-project/handler/handlerfakes"
@@ -128,9 +131,188 @@ func TestHandler_ValidateToken(t *testing.T) {
 
 	}
 }
+func TestHandler_Login_Return_valid_status_code(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
 
-func TestHandler_Login(t *testing.T) {
+	jsonPayload := `{
+		"username": "fakeUser",
+		"password": "fakePwd"
+		    }`
 
+	var mockAuth model.Auth
+	json.Unmarshal([]byte(jsonPayload), &mockAuth)
+	body := bytes.NewBufferString(jsonPayload)
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/auth/Login?id=1", body)
+
+	fakeAuth := model.Auth{Password: "fakePwd", Username: "fakeUser"}
+
+	usernameHash := sha256.Sum256([]byte(fakeAuth.Username))
+	passwordHash := sha256.Sum256([]byte(fakeAuth.Password))
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	auth := model.HashedAuth{Username: usernameHash, Password: passwordHash}
+	fakeService.GetEmployeeByIdReturns(model.Employee{
+		ID:        "1",
+		FirstName: "Joe",
+		LastName:  "Doe",
+		Email:     "john@doe.de",
+		Auth:      auth,
+	})
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.Login(fakeContest)
+	assert.Equal(t, http.StatusOK, responseRecoder.Code)
+}
+
+func TestHandler_Login_Return_InvalidStatusCode_EmployeeToGivenIDNotFoundInDatabase(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	jsonPayload := `{
+		"username": "fakeUser",
+		"password": "fakePwd"
+		    }`
+
+	var mockAuth model.Auth
+	json.Unmarshal([]byte(jsonPayload), &mockAuth)
+	body := bytes.NewBufferString(jsonPayload)
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/auth/Login?id=1", body)
+
+	fakeAuth := model.Auth{Password: "fakePwd", Username: "fakeUser"}
+
+	usernameHash := sha256.Sum256([]byte(fakeAuth.Username))
+	passwordHash := sha256.Sum256([]byte(fakeAuth.Password))
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	auth := model.HashedAuth{Username: usernameHash, Password: passwordHash}
+	fakeService.GetEmployeeByIdReturns(model.Employee{
+		ID:        "1",
+		FirstName: "Joe",
+		LastName:  "Doe",
+		Email:     "john@doe.de",
+		Auth:      auth,
+	})
+
+	expectedErrorMsg := ""
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.Login(fakeContest)
+
+	assert.Contains(t, responseRecoder.Body.String(), expectedErrorMsg)
+}
+
+func TestHandler_Login_Return_InvalidStatusCode_InvalidPayloadInPostRequest(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	jsonPayload := `
+		"fakename": "fakeUser",
+		"password": "fakePwd"
+		    }`
+
+	var mockAuth model.Auth
+	json.Unmarshal([]byte(jsonPayload), &mockAuth)
+	body := bytes.NewBufferString(jsonPayload)
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/auth/Login?id=1", body)
+
+	fakeAuth := model.Auth{Password: "fakePwd", Username: "fakeUser"}
+
+	usernameHash := sha256.Sum256([]byte(fakeAuth.Username))
+	passwordHash := sha256.Sum256([]byte(fakeAuth.Password))
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	auth := model.HashedAuth{Username: usernameHash, Password: passwordHash}
+	//	fakeError := errors.New("")
+	fakeService.GetEmployeeByIdReturns(model.Employee{
+		ID:        "1",
+		FirstName: "Joe",
+		LastName:  "Doe",
+		Email:     "john@doe.de",
+		Auth:      auth,
+	})
+
+	expectedErrorMsg := ""
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.Login(fakeContest)
+
+	assert.Contains(t, responseRecoder.Body.String(), expectedErrorMsg)
+	//	assert.Equal(t, http.StatusOK, responseRecoder.Code)
+}
+func TestHandler_Login_Return_InvalidStatusCode_PostedUsernameAndPassword_DontMatchSavedDataInDatabase(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	jsonPayload := `{
+		"username": "fakeUser",
+		"password": "Pwd"
+		    }`
+
+	var mockAuth model.Auth
+	json.Unmarshal([]byte(jsonPayload), &mockAuth)
+	body := bytes.NewBufferString(jsonPayload)
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/auth/Login?id=1", body)
+
+	fakeAuth := model.Auth{Password: "fakePwd", Username: "fakeUser"}
+
+	usernameHash := sha256.Sum256([]byte(fakeAuth.Username))
+	passwordHash := sha256.Sum256([]byte(fakeAuth.Password))
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	auth := model.HashedAuth{Username: usernameHash, Password: passwordHash}
+	fakeService.GetEmployeeByIdReturns(model.Employee{
+		ID:        "1",
+		FirstName: "Joe",
+		LastName:  "Doe",
+		Email:     "john@doe.de",
+		Auth:      auth,
+	})
+
+	expectedErrorMsg := "The username or password is wrong"
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.Login(fakeContest)
+
+	assert.Contains(t, responseRecoder.Body.String(), expectedErrorMsg)
+}
+
+func TestHandler_Login_Return_InvalidStatusCode_QueryKeyIsWrong(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	jsonPayload := `{
+		"username": "fakeUser",
+		"password": "Pwd"
+		    }`
+
+	var mockAuth model.Auth
+	json.Unmarshal([]byte(jsonPayload), &mockAuth)
+	body := bytes.NewBufferString(jsonPayload)
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/auth/Login?1", body)
+
+	fakeAuth := model.Auth{Password: "fakePwd", Username: "fakeUser"}
+
+	usernameHash := sha256.Sum256([]byte(fakeAuth.Username))
+	passwordHash := sha256.Sum256([]byte(fakeAuth.Password))
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	auth := model.HashedAuth{Username: usernameHash, Password: passwordHash}
+	fakeService.GetEmployeeByIdReturns(model.Employee{
+		ID:        "1",
+		FirstName: "Joe",
+		LastName:  "Doe",
+		Email:     "john@doe.de",
+		Auth:      auth,
+	})
+
+	expectedErrorMsg := ""
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.Login(fakeContest)
+
+	assert.Contains(t, responseRecoder.Body.String(), expectedErrorMsg)
+	//	assert.Equal(t, http.StatusOK, responseRecoder.Code)
 }
 
 func TestHandler_DoUserExist(t *testing.T) {
