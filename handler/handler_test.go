@@ -37,6 +37,25 @@ func TestGetEmployeeHandler_Return_valid_status_code(t *testing.T) {
 	assert.Equal(t, http.StatusOK, responseRecoder.Code)
 
 }
+
+func TestGetEmployeeHandler_Return_Invalid_status_code_woringQueryParams(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "ld", Value: "1"})
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakeService.GetEmployeeByIdReturns(model.Employee{
+		ID:        "1",
+		FirstName: "Joe",
+	})
+
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.GetEmployeeHandler(fakeContest)
+
+	assert.Equal(t, http.StatusBadRequest, responseRecoder.Code)
+
+}
 func TestHandler_DeleteByIdHandler(t *testing.T) {
 	ResponseRecorder := httptest.NewRecorder()
 
@@ -399,6 +418,118 @@ func TestHandler_DoUserExist(t *testing.T) {
 				boolResult, _ := handlerInstance.DoUserExist(tt.Result)
 				assert.Equal(t, tt.expected, boolResult)
 			}
+		}
+	}
+}
+
+func TestHandler_CreateEmployeeHandler(t *testing.T) {
+
+	jsonPayload := `{
+  "employees": [
+    {
+      "id": "1001",
+      "first_name": "Jona",
+      "last_name": "Miller",
+      "email": "jona.millermail.com",
+       "auth":  {
+ "username":"Jona",
+ "password":"pa55word"
+}
+    }
+  ]
+}`
+
+	jsonPayloadDuplication := `{
+  "employees": [
+    {
+      "id": "1001",
+      "first_name": "Jona",
+      "last_name": "Miller",
+      "email": "jona.millermail.com",
+       "auth":  {
+ "username":"Jona",
+ "password":"pa55word"
+}
+    },
+ {
+      "id": "1001",
+      "first_name": "Jona",
+      "last_name": "Miller",
+      "email": "jona.millermail.com",
+       "auth":  {
+ "username":"Jona",
+ "password":"pa55word"
+}
+    }
+  ]
+}`
+
+	badJsonPayload := `
+  oyees": [
+    {
+      "": "1001",
+      "first_name": "Jona",
+      "last_name": "Miller",
+      "email": "jona.millermail.com",
+       "auth":  {
+ "username":"Jona",
+ "password":"pa55word"
+}
+    }
+  ]
+}`
+	/*
+		var mockEmployee model.Employee
+		json.Unmarshal([]byte(jsonPayload), &mockEmployee)
+		body := bytes.NewBufferString(jsonPayload)
+
+		fakeContest, _ := gin.CreateTestContext(responseRecoder)
+		fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/register", body)
+		//	expectedErrorMsg := "The username or password is wrong"
+		fakeService := &handlerfakes.FakeServiceInterface{}
+		handlerInstance := handler.NewHandler(fakeService)
+		handlerInstance.CreateEmployeeHandler(fakeContest)
+		assert.Equal(t, http.StatusOK, responseRecoder.Code)
+
+	*/
+
+	var tests = []struct {
+		Payload        string
+		badPayload     bool
+		hasDuplication bool
+	}{
+		{jsonPayload, false, false},
+		{badJsonPayload, true, false},
+		{jsonPayloadDuplication, false, true},
+	}
+	for _, tt := range tests {
+		responseRecoder := httptest.NewRecorder()
+		var mockEmployee model.Employee
+		json.Unmarshal([]byte(tt.Payload), &mockEmployee)
+		body := bytes.NewBufferString(tt.Payload)
+		fakeContest, _ := gin.CreateTestContext(responseRecoder)
+		fakeService := &handlerfakes.FakeServiceInterface{}
+		if !tt.badPayload && !tt.hasDuplication {
+			fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/register", body)
+			handlerInstance := handler.NewHandler(fakeService)
+			handlerInstance.CreateEmployeeHandler(fakeContest)
+			assert.Equal(t, http.StatusOK, responseRecoder.Code)
+		}
+
+		if tt.badPayload {
+			fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/register", body)
+			handlerInstance := handler.NewHandler(fakeService)
+			handlerInstance.CreateEmployeeHandler(fakeContest)
+			assert.Equal(t, http.StatusBadRequest, responseRecoder.Code)
+		}
+
+		if tt.hasDuplication {
+			fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/register", body)
+
+			handlerInstance := handler.NewHandler(fakeService)
+
+			handlerInstance.CreateEmployeeHandler(fakeContest)
+			assert.Equal(t, http.StatusBadRequest, responseRecoder.Code)
 		}
 	}
 }
