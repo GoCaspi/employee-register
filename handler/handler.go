@@ -68,7 +68,13 @@ func (handler Handler) GetEmployeeHandler(c *gin.Context) {
 	}
 
 	response := handler.ServiceInterface.GetEmployeeById(pathParam)
-	c.JSON(http.StatusOK, response)
+	employee := model.EmployeeReturn{
+		ID:        response.ID,
+		FirstName: response.FirstName,
+		LastName:  response.LastName,
+		Email:     response.Email,
+	}
+	c.JSON(http.StatusOK, employee)
 }
 
 func (handler Handler) Login(c *gin.Context) {
