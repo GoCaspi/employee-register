@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -46,7 +47,20 @@ func CreateRoutes(group *gin.RouterGroup) {
 		// Send out the HTTP request
 		res, _ := httpClient.Do(req)
 
-		fmt.Println(res)
+		//	fmt.Println(res)
+		var t OAuthAccessResponse
+		if err = json.NewDecoder(res.Body).Decode(&t); err != nil {
+			context.AbortWithStatusJSON(402, "Couldnt fetch access token")
+		}
+		fmt.Println(t)
+
+		// setting up request to github user api
+		gitHubUrl := "https://api.github.com/user"
+		newReq, _ := http.NewRequest("GET", gitHubUrl, nil)
+		token := "token " + t.AccessToken
+		newReq.Header.Set("Authorization", token)
+		newRes, _ := httpClient.Do(req)
+		fmt.Println(newRes)
 
 		//	code := context.Query("code")
 		context.JSON(200, code)
