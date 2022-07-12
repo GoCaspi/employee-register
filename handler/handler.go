@@ -6,6 +6,8 @@ import (
 	"example-project/model"
 	"example-project/utility"
 	"github.com/gin-gonic/gin"
+	"strconv"
+
 	//	"go.mongodb.org/mongo-driver/x/mongo/driver/uuid"
 	"github.com/google/uuid"
 	"net/http"
@@ -16,6 +18,7 @@ type ServiceInterface interface {
 	CreateEmployees(employees []model.Employee) (interface{}, error)
 	GetEmployeeById(id string) model.Employee
 	DeleteEmployee(id string) (interface{}, error)
+	GetPaginatedEmployees(page int, limit int) (model.PaginatedPayload, error)
 }
 
 var MyCacheMap = cache.NewCacheMap{}
@@ -204,4 +207,35 @@ func (handler Handler) DeleteByIdHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, response)
+}
+
+func (handler Handler) GetAllEmployeesHandler(c *gin.Context) {
+	pages, pageOk := c.GetQuery("page")
+	limit, limitOk := c.GetQuery("limit")
+	pageInt, pageErr := strconv.Atoi(pages)
+	limitInt, limitErr := strconv.Atoi(limit)
+	if pageOk && limitOk {
+		if pageOk && limitOk && pageErr == nil && limitErr == nil {
+
+			response, err := handler.ServiceInterface.GetPaginatedEmployees(pageInt, limitInt)
+			if err != nil {
+				c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+					"errorMessage": err.Error(),
+				})
+				return
+			}
+			c.JSON(http.StatusOK, response)
+		} else {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"errorMessage": "queries are invalid, please check or remove them",
+			})
+			return
+		}
+	} else {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": "This is a paginated endpoint, please submit a limit and a page",
+		})
+		return
+	}
+
 }
