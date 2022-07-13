@@ -35,7 +35,6 @@ func TestGetEmployeeHandler_Return_valid_status_code(t *testing.T) {
 	handlerInstance.GetEmployeeHandler(fakeContest)
 
 	assert.Equal(t, http.StatusOK, responseRecoder.Code)
-
 }
 
 func TestGetEmployeeHandler_Return_Invalid_status_code_woringQueryParams(t *testing.T) {
