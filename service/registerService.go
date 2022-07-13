@@ -9,7 +9,7 @@ type DatabaseInterface interface {
 	UpdateMany(docs []interface{}) (interface{}, error)
 	GetByID(id string) model.Employee
 	DeleteByID(id string) (interface{}, error)
-	GetAllPaginated(pagenumber int, limit int) ([]model.Employee, error)
+	GetPaginated(page int, limit int) (model.PaginatedPayload, error)
 }
 
 type EmployeeService struct {
@@ -47,6 +47,7 @@ func (s EmployeeService) DeleteEmployee(id string) (interface{}, error) {
 
 }
 
-func (s EmployeeService) GetAllEmployeesPaginated(pagenumber int, limit int) ([]model.Employee, error) {
-	return s.DbService.GetAllPaginated(pagenumber, limit)
+func (s EmployeeService) GetPaginatedEmployees(page int, limit int) (model.PaginatedPayload, error) {
+	result, err := s.DbService.GetPaginated(page, limit)
+	return result, err
 }

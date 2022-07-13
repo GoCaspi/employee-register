@@ -612,6 +612,6 @@ func TestGetPaginatedEmployeesHandler_Invalid_request_noQueryParamsGiven(t *test
 	fakeService.GetPaginatedEmployeesReturns(fakePaginatedPayload, nil)
 	handlerInstance := handler.NewHandler(fakeService)
 	handlerInstance.GetAllEmployeesHandler(fakeContext)
-	assert.Equal(t, 400, fakeRecorder.Code)
+	assert.Equal(t, 200, fakeRecorder.Code)
 
 }

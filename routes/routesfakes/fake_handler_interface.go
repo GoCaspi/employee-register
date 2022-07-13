@@ -19,6 +19,11 @@ type FakeHandlerInterface struct {
 	deleteByIdHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
+	GetAllEmployeesHandlerStub        func(*gin.Context)
+	getAllEmployeesHandlerMutex       sync.RWMutex
+	getAllEmployeesHandlerArgsForCall []struct {
+		arg1 *gin.Context
+	}
 	GetEmployeeHandlerStub        func(*gin.Context)
 	getEmployeeHandlerMutex       sync.RWMutex
 	getEmployeeHandlerArgsForCall []struct {
@@ -32,6 +37,16 @@ type FakeHandlerInterface struct {
 	LogoutStub        func(*gin.Context)
 	logoutMutex       sync.RWMutex
 	logoutArgsForCall []struct {
+		arg1 *gin.Context
+	}
+	OAuthRedirectHandlerStub        func(*gin.Context)
+	oAuthRedirectHandlerMutex       sync.RWMutex
+	oAuthRedirectHandlerArgsForCall []struct {
+		arg1 *gin.Context
+	}
+	OAuthStarterHandlerStub        func(*gin.Context)
+	oAuthStarterHandlerMutex       sync.RWMutex
+	oAuthStarterHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
 	ValidateTokenStub        func(*gin.Context)
@@ -104,6 +119,38 @@ func (fake *FakeHandlerInterface) DeleteByIdHandlerArgsForCall(i int) *gin.Conte
 	fake.deleteByIdHandlerMutex.RLock()
 	defer fake.deleteByIdHandlerMutex.RUnlock()
 	argsForCall := fake.deleteByIdHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeHandlerInterface) GetAllEmployeesHandler(arg1 *gin.Context) {
+	fake.getAllEmployeesHandlerMutex.Lock()
+	fake.getAllEmployeesHandlerArgsForCall = append(fake.getAllEmployeesHandlerArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.GetAllEmployeesHandlerStub
+	fake.recordInvocation("GetAllEmployeesHandler", []interface{}{arg1})
+	fake.getAllEmployeesHandlerMutex.Unlock()
+	if stub != nil {
+		fake.GetAllEmployeesHandlerStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) GetAllEmployeesHandlerCallCount() int {
+	fake.getAllEmployeesHandlerMutex.RLock()
+	defer fake.getAllEmployeesHandlerMutex.RUnlock()
+	return len(fake.getAllEmployeesHandlerArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) GetAllEmployeesHandlerCalls(stub func(*gin.Context)) {
+	fake.getAllEmployeesHandlerMutex.Lock()
+	defer fake.getAllEmployeesHandlerMutex.Unlock()
+	fake.GetAllEmployeesHandlerStub = stub
+}
+
+func (fake *FakeHandlerInterface) GetAllEmployeesHandlerArgsForCall(i int) *gin.Context {
+	fake.getAllEmployeesHandlerMutex.RLock()
+	defer fake.getAllEmployeesHandlerMutex.RUnlock()
+	argsForCall := fake.getAllEmployeesHandlerArgsForCall[i]
 	return argsForCall.arg1
 }
 
@@ -203,6 +250,70 @@ func (fake *FakeHandlerInterface) LogoutArgsForCall(i int) *gin.Context {
 	return argsForCall.arg1
 }
 
+func (fake *FakeHandlerInterface) OAuthRedirectHandler(arg1 *gin.Context) {
+	fake.oAuthRedirectHandlerMutex.Lock()
+	fake.oAuthRedirectHandlerArgsForCall = append(fake.oAuthRedirectHandlerArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.OAuthRedirectHandlerStub
+	fake.recordInvocation("OAuthRedirectHandler", []interface{}{arg1})
+	fake.oAuthRedirectHandlerMutex.Unlock()
+	if stub != nil {
+		fake.OAuthRedirectHandlerStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) OAuthRedirectHandlerCallCount() int {
+	fake.oAuthRedirectHandlerMutex.RLock()
+	defer fake.oAuthRedirectHandlerMutex.RUnlock()
+	return len(fake.oAuthRedirectHandlerArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) OAuthRedirectHandlerCalls(stub func(*gin.Context)) {
+	fake.oAuthRedirectHandlerMutex.Lock()
+	defer fake.oAuthRedirectHandlerMutex.Unlock()
+	fake.OAuthRedirectHandlerStub = stub
+}
+
+func (fake *FakeHandlerInterface) OAuthRedirectHandlerArgsForCall(i int) *gin.Context {
+	fake.oAuthRedirectHandlerMutex.RLock()
+	defer fake.oAuthRedirectHandlerMutex.RUnlock()
+	argsForCall := fake.oAuthRedirectHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeHandlerInterface) OAuthStarterHandler(arg1 *gin.Context) {
+	fake.oAuthStarterHandlerMutex.Lock()
+	fake.oAuthStarterHandlerArgsForCall = append(fake.oAuthStarterHandlerArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.OAuthStarterHandlerStub
+	fake.recordInvocation("OAuthStarterHandler", []interface{}{arg1})
+	fake.oAuthStarterHandlerMutex.Unlock()
+	if stub != nil {
+		fake.OAuthStarterHandlerStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) OAuthStarterHandlerCallCount() int {
+	fake.oAuthStarterHandlerMutex.RLock()
+	defer fake.oAuthStarterHandlerMutex.RUnlock()
+	return len(fake.oAuthStarterHandlerArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) OAuthStarterHandlerCalls(stub func(*gin.Context)) {
+	fake.oAuthStarterHandlerMutex.Lock()
+	defer fake.oAuthStarterHandlerMutex.Unlock()
+	fake.OAuthStarterHandlerStub = stub
+}
+
+func (fake *FakeHandlerInterface) OAuthStarterHandlerArgsForCall(i int) *gin.Context {
+	fake.oAuthStarterHandlerMutex.RLock()
+	defer fake.oAuthStarterHandlerMutex.RUnlock()
+	argsForCall := fake.oAuthStarterHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
 func (fake *FakeHandlerInterface) ValidateToken(arg1 *gin.Context) {
 	fake.validateTokenMutex.Lock()
 	fake.validateTokenArgsForCall = append(fake.validateTokenArgsForCall, struct {
@@ -242,12 +353,18 @@ func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	defer fake.createEmployeeHandlerMutex.RUnlock()
 	fake.deleteByIdHandlerMutex.RLock()
 	defer fake.deleteByIdHandlerMutex.RUnlock()
+	fake.getAllEmployeesHandlerMutex.RLock()
+	defer fake.getAllEmployeesHandlerMutex.RUnlock()
 	fake.getEmployeeHandlerMutex.RLock()
 	defer fake.getEmployeeHandlerMutex.RUnlock()
 	fake.loginMutex.RLock()
 	defer fake.loginMutex.RUnlock()
 	fake.logoutMutex.RLock()
 	defer fake.logoutMutex.RUnlock()
+	fake.oAuthRedirectHandlerMutex.RLock()
+	defer fake.oAuthRedirectHandlerMutex.RUnlock()
+	fake.oAuthStarterHandlerMutex.RLock()
+	defer fake.oAuthStarterHandlerMutex.RUnlock()
 	fake.validateTokenMutex.RLock()
 	defer fake.validateTokenMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

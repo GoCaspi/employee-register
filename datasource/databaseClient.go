@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"example-project/model"
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -18,6 +19,7 @@ type MongoDBInterface interface {
 	DeleteOne(ctx context.Context, filter interface{}, opts ...*options.DeleteOptions) (*mongo.DeleteResult, error)
 	CountDocuments(ctx context.Context, filter interface{}, opts ...*options.CountOptions) (int64, error)
 	Find(ctx context.Context, filter interface{}, opts ...*options.FindOptions) (cur *mongo.Cursor, err error)
+	UpdateOne(ctx context.Context, filter interface{}, update interface{}, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error)
 }
 
 type Client struct {
@@ -68,56 +70,57 @@ func (c Client) DeleteByID(id string) (interface{}, error) {
 	return results.DeletedCount, nil
 }
 
-func (c Client) GetAllPaginated(pagenumber int, limit int) ([]model.Employee, error) {
-
-	// var counter is increased by one for every document that was found in the database. It is used to calculate the last page.
-	var counter int = 0
-	indicatorFilter := bson.M{}
-	indicator, _ := c.Employee.Find(context.TODO(), indicatorFilter)
-	defer indicator.Close(context.Background())
-	for indicator.Next(context.Background()) {
-		counter++
-	}
-	lastPageC := math.Ceil(float64(counter / limit))
-	lastPageF := math.Floor(float64(counter / limit))
-	lastPage := lastPageC
-	if lastPageC == lastPageF {
-		lastPage++
+func (c Client) GetPaginated(page int, limit int) (model.PaginatedPayload, error) {
+	var paginatedPayload model.PaginatedPayload
+	skipMax, er := c.Employee.CountDocuments(context.TODO(), bson.D{})
+	if er != nil {
+		return model.PaginatedPayload{}, errors.New("error at counting documents")
 	}
 
-	if float64(pagenumber) > lastPage {
-		outOfBoundsErr := errors.New("The given pagenumber exceeds the total number of pages avaible.")
-		log.Println(outOfBoundsErr)
-		return nil, outOfBoundsErr
-	}
-	// setting the findoptions to the pagination structure given as parameters
 	findOptions := options.Find()
 	findOptions.SetSort(bson.D{{"id", 1}})
 	limit64 := int64(limit)
+	var maxPages = float64(skipMax) / float64(limit64)
+	maxPages = math.Ceil(maxPages)
+	paginatedPayload.PageLimit = int(maxPages)
+	if page == 0 || math.Signbit(float64(page)) {
+		invalidPageNumber := errors.New("invalid page number, page number can't be zero or negative")
+		return paginatedPayload, invalidPageNumber
+	}
+	if limit == 0 || math.Signbit(float64(limit)) {
+		invalidPageNumber := errors.New("invalid limit, limit can't be zero or negative")
+		return paginatedPayload, invalidPageNumber
+	}
+	if maxPages == 0 {
+		formattedError := fmt.Sprintf("your page limit is too high. please reduce it to: %v", skipMax)
+		return paginatedPayload, errors.New(formattedError)
+	}
+	if page > int(maxPages) {
+		outOfRange := errors.New("page limit reached, please reduce the page number")
+		return paginatedPayload, outOfRange
+	}
+	pageSet := (page - 1) * limit
 	findOptions.SetLimit(limit64)
-	findOptions.SetSkip(int64((int64(pagenumber) - 1) * limit64))
-	var employeeArr []model.Employee
-	filter := bson.M{}
-	cur, err := c.Employee.Find(context.TODO(), filter, findOptions)
-	if err != nil {
-		log.Print(err)
-		return nil, err
-	}
-	defer cur.Close(context.Background())
-	for cur.Next(context.Background()) {
-		// To decode into a struct, use cursor.Decode()
-		var employee model.Employee
-		err := cur.Decode(&employee)
-		if err != nil {
-			log.Print(err)
-			return nil, err
-		}
-		employeeArr = append(employeeArr, employee)
-	}
-	if err := cur.Err(); err != nil {
-		log.Print(err)
-		return nil, err
-	}
+	findOptions.SetSkip(int64(pageSet))
+	courser, err := c.Employee.Find(context.TODO(), bson.D{}, findOptions)
 
-	return employeeArr, nil
+	var employees []model.Employee
+	if err != nil {
+		return paginatedPayload, err
+	}
+	for courser.Next(context.TODO()) {
+		var employee model.Employee
+		err := courser.Decode(&employee)
+		if err != nil {
+			return paginatedPayload, err
+		}
+		employees = append(employees, employee)
+	}
+	if len(employees) == 0 {
+		noEmployeesError := errors.New("no employees exist")
+		return paginatedPayload, noEmployeesError
+	}
+	paginatedPayload.Employees = employees
+	return paginatedPayload, nil
+
 }

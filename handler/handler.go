@@ -22,7 +22,7 @@ type ServiceInterface interface {
 	CreateEmployees(employees []model.Employee) (interface{}, error)
 	GetEmployeeById(id string) model.Employee
 	DeleteEmployee(id string) (interface{}, error)
-	GetAllEmployeesPaginated(pagenumber int, limit int) ([]model.Employee, error)
+	GetPaginatedEmployees(page int, limit int) (model.PaginatedPayload, error)
 }
 
 var MyCacheMap = cache.NewCacheMap{}
@@ -221,44 +221,37 @@ func (handler Handler) DeleteByIdHandler(c *gin.Context) {
 }
 
 func (handler Handler) GetAllEmployeesHandler(c *gin.Context) {
+	pages, pageOk := c.GetQuery("page")
+	limit, limitOk := c.GetQuery("limit")
+	pageInt, pageErr := strconv.Atoi(pages)
+	limitInt, limitErr := strconv.Atoi(limit)
+	if pageOk && limitOk {
+		if pageOk && limitOk && pageErr == nil && limitErr == nil {
 
-	page, pageIsPresent := c.GetQuery("page")
-	limit, limitIsPresent := c.GetQuery("limit")
-	pageInt, pageError := strconv.Atoi(page)
-	limitInt, limitError := strconv.Atoi(limit)
+			response, err := handler.ServiceInterface.GetPaginatedEmployees(pageInt, limitInt)
+			if err != nil {
+				c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+					"errorMessage": err.Error(),
+				})
+				return
+			}
+			c.JSON(http.StatusOK, response)
+		} else {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"errorMessage": "queries are invalid, please check or remove them",
+			})
+			return
+		}
+	} else {
 
-	if (pageError != nil || limitError != nil) && pageIsPresent && limitIsPresent {
-		errMsg := "Please parse the pagenumber aswell as the limit as an integer"
-		c.AbortWithStatusJSON(400, errMsg)
-		return
+		pageInt = 1
+		limitInt = 1000000 * 100000
+
+		response, _ := handler.ServiceInterface.GetPaginatedEmployees(pageInt, limitInt)
+
+		c.JSON(http.StatusOK, response)
 	}
 
-	if !pageIsPresent || !limitIsPresent {
-		errMsg := "This is a paginatied endpoint. Please add a pagenumber and a limit of employees to your search."
-		c.AbortWithStatusJSON(400, errMsg)
-		return
-	}
-
-	if limitInt < 1 {
-		errMsg := "The limit of employees displayed per page cannot be less than one."
-		c.AbortWithStatusJSON(400, errMsg)
-		return
-	}
-
-	if pageInt < 1 {
-		errMsg := "The pagenumber cannot be less than one."
-		c.AbortWithStatusJSON(400, errMsg)
-		return
-	}
-
-	allEmployees, err := handler.ServiceInterface.GetAllEmployeesPaginated(pageInt, limitInt)
-	if err != nil {
-		errMsg := "The given pagenumber exceeds the total number of pages avaible."
-		c.AbortWithStatusJSON(400, errMsg)
-		return
-	}
-
-	c.JSON(http.StatusOK, allEmployees)
 }
 
 func (handler Handler) OAuthRedirectHandler(context *gin.Context) {
