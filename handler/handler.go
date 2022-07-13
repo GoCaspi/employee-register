@@ -2,10 +2,14 @@ package handler
 
 import (
 	"crypto/subtle"
+	"encoding/json"
 	"example-project/cache"
 	"example-project/model"
 	"example-project/utility"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"io/ioutil"
+	"log"
 	"strconv"
 
 	//	"go.mongodb.org/mongo-driver/x/mongo/driver/uuid"
@@ -18,7 +22,7 @@ type ServiceInterface interface {
 	CreateEmployees(employees []model.Employee) (interface{}, error)
 	GetEmployeeById(id string) model.Employee
 	DeleteEmployee(id string) (interface{}, error)
-	GetPaginatedEmployees(page int, limit int) (model.PaginatedPayload, error)
+	GetAllEmployeesPaginated(pagenumber int, limit int) ([]model.Employee, error)
 }
 
 var MyCacheMap = cache.NewCacheMap{}
@@ -26,6 +30,13 @@ var MyCacheMap = cache.NewCacheMap{}
 const noTokenErr = "No token is provided. Please login in and provide a token"
 const noEmployeeFound = "Cannot find an employee to that id!"
 const invalidPayloadMsg = "invalid payload"
+
+const clientID = "69678bb4a1b8a0c2462f"
+const clientSecret = "cad250266a5613152d5a9ea64e70429545855782"
+
+type OAuthAccessResponse struct {
+	AccessToken string `json:"access_token"`
+}
 
 type Handler struct {
 	ServiceInterface ServiceInterface
@@ -210,32 +221,107 @@ func (handler Handler) DeleteByIdHandler(c *gin.Context) {
 }
 
 func (handler Handler) GetAllEmployeesHandler(c *gin.Context) {
-	pages, pageOk := c.GetQuery("page")
-	limit, limitOk := c.GetQuery("limit")
-	pageInt, pageErr := strconv.Atoi(pages)
-	limitInt, limitErr := strconv.Atoi(limit)
-	if pageOk && limitOk {
-		if pageOk && limitOk && pageErr == nil && limitErr == nil {
 
-			response, err := handler.ServiceInterface.GetPaginatedEmployees(pageInt, limitInt)
-			if err != nil {
-				c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-					"errorMessage": err.Error(),
-				})
-				return
-			}
-			c.JSON(http.StatusOK, response)
-		} else {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"errorMessage": "queries are invalid, please check or remove them",
-			})
-			return
-		}
-	} else {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"errorMessage": "This is a paginated endpoint, please submit a limit and a page",
-		})
+	page, pageIsPresent := c.GetQuery("page")
+	limit, limitIsPresent := c.GetQuery("limit")
+	pageInt, pageError := strconv.Atoi(page)
+	limitInt, limitError := strconv.Atoi(limit)
+
+	if (pageError != nil || limitError != nil) && pageIsPresent && limitIsPresent {
+		errMsg := "Please parse the pagenumber aswell as the limit as an integer"
+		c.AbortWithStatusJSON(400, errMsg)
 		return
 	}
 
+	if !pageIsPresent || !limitIsPresent {
+		errMsg := "This is a paginatied endpoint. Please add a pagenumber and a limit of employees to your search."
+		c.AbortWithStatusJSON(400, errMsg)
+		return
+	}
+
+	if limitInt < 1 {
+		errMsg := "The limit of employees displayed per page cannot be less than one."
+		c.AbortWithStatusJSON(400, errMsg)
+		return
+	}
+
+	if pageInt < 1 {
+		errMsg := "The pagenumber cannot be less than one."
+		c.AbortWithStatusJSON(400, errMsg)
+		return
+	}
+
+	allEmployees, err := handler.ServiceInterface.GetAllEmployeesPaginated(pageInt, limitInt)
+	if err != nil {
+		errMsg := "The given pagenumber exceeds the total number of pages avaible."
+		c.AbortWithStatusJSON(400, errMsg)
+		return
+	}
+
+	c.JSON(http.StatusOK, allEmployees)
+}
+
+func (handler Handler) OAuthRedirectHandler(context *gin.Context) {
+	code := context.Query("code")
+	reqURL := fmt.Sprintf("https://github.com/login/oauth/access_token?client_id=%s&client_secret=%s&code=%s", clientID, clientSecret, code)
+	req, err := http.NewRequest(http.MethodPost, reqURL, nil)
+	req.Header.Set("accept", "application/json")
+	if err != nil {
+		fmt.Println(err)
+	}
+	httpClient := http.Client{}
+	// Send out the HTTP request
+	res, _ := httpClient.Do(req)
+
+	//	fmt.Println(res)
+	var t OAuthAccessResponse
+	if err = json.NewDecoder(res.Body).Decode(&t); err != nil {
+		context.AbortWithStatusJSON(402, "Couldnt fetch access token")
+	}
+
+	githubUserId := uuid.New().String()
+
+	cache.AddToCacheMap(githubUserId, t.AccessToken, MyCacheMap)
+
+	guestMsg := "Success! Your Guest-Id is :" + githubUserId + " and your guest-token is: " + t.AccessToken
+
+	context.JSON(200, guestMsg)
+	githubData := getGithubData(t.AccessToken)
+
+	fmt.Println(githubData)
+
+	context.JSON(200, githubData)
+}
+
+func (handler Handler) OAuthStarterHandler(context *gin.Context) {
+	context.JSON(200, "https://github.com/login/oauth/authorize?client_id=69678bb4a1b8a0c2462f")
+}
+
+func getGithubData(accessToken string) string {
+	// Get request to a set URL
+	req, reqerr := http.NewRequest(
+		"GET",
+		"https://api.github.com/user",
+		nil,
+	)
+	if reqerr != nil {
+		log.Panic("API Request creation failed")
+	}
+
+	// Set the Authorization header before sending the request
+	// Authorization: token XXXXXXXXXXXXXXXXXXXXXXXXXXX
+	authorizationHeaderValue := fmt.Sprintf("token %s", accessToken)
+	req.Header.Set("Authorization", authorizationHeaderValue)
+
+	// Make the request
+	resp, resperr := http.DefaultClient.Do(req)
+	if resperr != nil {
+		log.Panic("Request failed")
+	}
+
+	// Read the response as a byte slice
+	respbody, _ := ioutil.ReadAll(resp.Body)
+
+	// Convert byte slice to string and return
+	return string(respbody)
 }

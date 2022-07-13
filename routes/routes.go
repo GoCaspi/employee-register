@@ -1,10 +1,7 @@
 package routes
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . HandlerInterface
@@ -15,6 +12,9 @@ type HandlerInterface interface {
 	Logout(c *gin.Context)
 	ValidateToken(c *gin.Context)
 	DeleteByIdHandler(c *gin.Context)
+	GetAllEmployeesHandler(c *gin.Context)
+	OAuthRedirectHandler(context *gin.Context)
+	OAuthStarterHandler(context *gin.Context)
 }
 
 var Handler HandlerInterface
@@ -31,44 +31,15 @@ func CreateRoutes(group *gin.RouterGroup) {
 	group.POST("/Login", Handler.Login)
 	group.POST("/Logout", Handler.Logout)
 	group.POST("/register", Handler.CreateEmployeeHandler)
-	group.GET("/tester", func(context *gin.Context) {
-		context.JSON(200, "https://github.com/login/oauth/authorize?client_id=69678bb4a1b8a0c2462f")
-	})
+	group.GET("/tester", Handler.OAuthStarterHandler)
+	group.GET("/get", Handler.GetAllEmployeesHandler)
 
-	group.GET("/authRedirect", func(context *gin.Context) {
-		code := context.Query("code")
-		reqURL := fmt.Sprintf("https://github.com/login/oauth/access_token?client_id=%s&client_secret=%s&code=%s", clientID, clientSecret, code)
-		req, err := http.NewRequest(http.MethodPost, reqURL, nil)
-		req.Header.Set("accept", "application/json")
-		if err != nil {
-			fmt.Println(err)
-		}
-		httpClient := http.Client{}
-		// Send out the HTTP request
-		res, _ := httpClient.Do(req)
-
-		//	fmt.Println(res)
-		var t OAuthAccessResponse
-		if err = json.NewDecoder(res.Body).Decode(&t); err != nil {
-			context.AbortWithStatusJSON(402, "Couldnt fetch access token")
-		}
-		fmt.Println(t)
-
-		// setting up request to github user api
-		gitHubUrl := "https://api.github.com/user"
-		newReq, _ := http.NewRequest("GET", gitHubUrl, nil)
-		token := "token " + t.AccessToken
-		newReq.Header.Set("Authorization", token)
-		newRes, _ := httpClient.Do(req)
-		fmt.Println(newRes)
-
-		//	code := context.Query("code")
-		context.JSON(200, code)
-	})
+	group.GET("/authRedirect", Handler.OAuthRedirectHandler)
 
 	route := group.Group("/employee")
 	route.Use(Handler.ValidateToken)
 	route.GET("/:id/get", Handler.GetEmployeeHandler)
 	route.POST("/create", Handler.CreateEmployeeHandler)
 	route.DELETE("/:id/delete", Handler.DeleteByIdHandler)
+	//	route.GET("/get", Handler.GetAllEmployeesHandler)
 }

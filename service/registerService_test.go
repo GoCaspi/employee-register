@@ -58,3 +58,18 @@ func TestDeleteEmployee(t *testing.T) {
 	actual, _ := serviceInstance.DeleteEmployee("1")
 	assert.NotNil(t, actual)
 }
+
+func TestGetPaginatedEmployees(t *testing.T) {
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+	fakePaginatedPayload := model.PaginatedPayload{
+		PageLimit: 2,
+		Employees: []model.Employee{
+			model.Employee{ID: "100", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
+			model.Employee{ID: "200", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
+		},
+	}
+	fakeDB.GetPaginatedReturns(fakePaginatedPayload, nil)
+	serviceInstance := service.NewEmployeeService(fakeDB)
+	actual, err := serviceInstance.GetPaginatedEmployees(1, 2)
+	assert.Equal(t, fakePaginatedPayload, actual, err)
+}

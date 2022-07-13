@@ -533,3 +533,85 @@ func TestHandler_CreateEmployeeHandler(t *testing.T) {
 		}
 	}
 }
+
+func TestGetPaginatedEmployeesHandler_valid_request(t *testing.T) {
+	fakeRecorder := httptest.NewRecorder()
+	fakeContext, _ := gin.CreateTestContext(fakeRecorder)
+	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/employee/get?page=1&limit=2", nil)
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakePaginatedPayload := model.PaginatedPayload{
+		PageLimit: 2,
+		Employees: []model.Employee{
+			model.Employee{ID: "100", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
+			model.Employee{ID: "200", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
+		},
+	}
+	fakeService.GetPaginatedEmployeesReturns(fakePaginatedPayload, nil)
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.GetAllEmployeesHandler(fakeContext)
+	assert.Equal(t, http.StatusOK, fakeRecorder.Code)
+
+}
+
+func TestGetPaginatedEmployeesHandler_invalid_request_pageiszero(t *testing.T) {
+	fakeRecorder := httptest.NewRecorder()
+	fakeContext, _ := gin.CreateTestContext(fakeRecorder)
+	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/employee/get?page=0&limit=2", nil)
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakePaginatedPayload := model.PaginatedPayload{
+		PageLimit: 0,
+		Employees: []model.Employee{
+			{ID: "100", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
+			{ID: "200", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
+		},
+	}
+	invalidPageNumber := errors.New("invalid page number, page number can't be zero")
+	fakeService.GetPaginatedEmployeesReturns(fakePaginatedPayload, invalidPageNumber)
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.GetAllEmployeesHandler(fakeContext)
+	assert.Equal(t, 400, fakeRecorder.Code)
+
+}
+
+func TestGetPaginatedEmployeesHandler_invalid_request_wrongquery(t *testing.T) {
+	fakeRecorder := httptest.NewRecorder()
+	fakeContext, _ := gin.CreateTestContext(fakeRecorder)
+	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/employee/get?page=frgr&limit=2", nil)
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakePaginatedPayload := model.PaginatedPayload{
+		PageLimit: 0,
+		Employees: []model.Employee{
+			{ID: "100", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
+			{ID: "200", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
+		},
+	}
+	invalidPageNumber := errors.New("invalid page number, page number can't be zero")
+	fakeService.GetPaginatedEmployeesReturns(fakePaginatedPayload, invalidPageNumber)
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.GetAllEmployeesHandler(fakeContext)
+	assert.Equal(t, 400, fakeRecorder.Code)
+
+}
+
+func TestGetPaginatedEmployeesHandler_Invalid_request_noQueryParamsGiven(t *testing.T) {
+	fakeRecorder := httptest.NewRecorder()
+	fakeContext, _ := gin.CreateTestContext(fakeRecorder)
+	fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/employee/get", nil)
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	fakePaginatedPayload := model.PaginatedPayload{
+		PageLimit: 2,
+		Employees: []model.Employee{
+			model.Employee{ID: "100", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
+			model.Employee{ID: "200", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
+		},
+	}
+	fakeService.GetPaginatedEmployeesReturns(fakePaginatedPayload, nil)
+	handlerInstance := handler.NewHandler(fakeService)
+	handlerInstance.GetAllEmployeesHandler(fakeContext)
+	assert.Equal(t, 400, fakeRecorder.Code)
+
+}
