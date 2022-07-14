@@ -31,8 +31,7 @@ func CreateRoutes(group *gin.RouterGroup) {
 	group.POST("/Login", Handler.Login)
 	group.POST("/Logout", Handler.Logout)
 	group.POST("/register", Handler.CreateEmployeeHandler)
-	group.GET("/tester", Handler.OAuthStarterHandler)
-	group.GET("/get", Handler.GetAllEmployeesHandler)
+	group.GET("/github", Handler.OAuthStarterHandler)
 
 	group.GET("/authRedirect", Handler.OAuthRedirectHandler)
 
@@ -41,5 +40,5 @@ func CreateRoutes(group *gin.RouterGroup) {
 	route.GET("/:id/get", Handler.GetEmployeeHandler)
 	route.POST("/create", Handler.CreateEmployeeHandler)
 	route.DELETE("/:id/delete", Handler.DeleteByIdHandler)
-	//	route.GET("/get", Handler.GetAllEmployeesHandler)
+	route.GET("/get", Handler.GetAllEmployeesHandler)
 }
