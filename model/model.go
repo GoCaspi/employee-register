@@ -41,6 +41,6 @@ type EmployeeReturn struct {
 }
 
 type PaginatedPayload struct {
-	Employees []Employee `json:"employees"`
-	PageLimit int        `json:"pageLimit"`
+	Employees []EmployeeReturn `json:"employees"`
+	PageLimit int              `json:"pageLimit"`
 }

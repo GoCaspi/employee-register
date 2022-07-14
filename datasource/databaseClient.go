@@ -104,12 +104,12 @@ func (c Client) GetPaginated(page int, limit int) (model.PaginatedPayload, error
 	findOptions.SetSkip(int64(pageSet))
 	courser, err := c.Employee.Find(context.TODO(), bson.D{}, findOptions)
 
-	var employees []model.Employee
+	var employees []model.EmployeeReturn
 	if err != nil {
 		return paginatedPayload, err
 	}
 	for courser.Next(context.TODO()) {
-		var employee model.Employee
+		var employee model.EmployeeReturn
 		err := courser.Decode(&employee)
 		if err != nil {
 			return paginatedPayload, err

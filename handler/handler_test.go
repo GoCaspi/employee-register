@@ -542,9 +542,9 @@ func TestGetPaginatedEmployeesHandler_valid_request(t *testing.T) {
 	fakeService := &handlerfakes.FakeServiceInterface{}
 	fakePaginatedPayload := model.PaginatedPayload{
 		PageLimit: 2,
-		Employees: []model.Employee{
-			model.Employee{ID: "100", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
-			model.Employee{ID: "200", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
+		Employees: []model.EmployeeReturn{
+			model.EmployeeReturn{ID: "100", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
+			model.EmployeeReturn{ID: "200", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
 		},
 	}
 	fakeService.GetPaginatedEmployeesReturns(fakePaginatedPayload, nil)
@@ -562,7 +562,7 @@ func TestGetPaginatedEmployeesHandler_invalid_request_pageiszero(t *testing.T) {
 	fakeService := &handlerfakes.FakeServiceInterface{}
 	fakePaginatedPayload := model.PaginatedPayload{
 		PageLimit: 0,
-		Employees: []model.Employee{
+		Employees: []model.EmployeeReturn{
 			{ID: "100", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
 			{ID: "200", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
 		},
@@ -583,7 +583,7 @@ func TestGetPaginatedEmployeesHandler_invalid_request_wrongquery(t *testing.T) {
 	fakeService := &handlerfakes.FakeServiceInterface{}
 	fakePaginatedPayload := model.PaginatedPayload{
 		PageLimit: 0,
-		Employees: []model.Employee{
+		Employees: []model.EmployeeReturn{
 			{ID: "100", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
 			{ID: "200", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
 		},
@@ -604,9 +604,9 @@ func TestGetPaginatedEmployeesHandler_Invalid_request_noQueryParamsGiven(t *test
 	fakeService := &handlerfakes.FakeServiceInterface{}
 	fakePaginatedPayload := model.PaginatedPayload{
 		PageLimit: 2,
-		Employees: []model.Employee{
-			model.Employee{ID: "100", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
-			model.Employee{ID: "200", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
+		Employees: []model.EmployeeReturn{
+			model.EmployeeReturn{ID: "100", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
+			model.EmployeeReturn{ID: "200", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
 		},
 	}
 	fakeService.GetPaginatedEmployeesReturns(fakePaginatedPayload, nil)
