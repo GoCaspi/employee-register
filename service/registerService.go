@@ -8,6 +8,8 @@ import (
 type DatabaseInterface interface {
 	UpdateMany(docs []interface{}) (interface{}, error)
 	GetByID(id string) model.Employee
+	DeleteByID(id string) (interface{}, error)
+	GetPaginated(page int, limit int) (model.PaginatedPayload, error)
 }
 
 type EmployeeService struct {
@@ -39,4 +41,13 @@ func (s EmployeeService) CreateEmployees(employees []model.Employee) (interface{
 
 func (s EmployeeService) GetEmployeeById(id string) model.Employee {
 	return s.DbService.GetByID(id)
+}
+func (s EmployeeService) DeleteEmployee(id string) (interface{}, error) {
+	return s.DbService.DeleteByID(id)
+
+}
+
+func (s EmployeeService) GetPaginatedEmployees(page int, limit int) (model.PaginatedPayload, error) {
+	result, err := s.DbService.GetPaginated(page, limit)
+	return result, err
 }
