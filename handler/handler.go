@@ -5,7 +5,11 @@ import (
 	"example-project/cache"
 	"example-project/model"
 	"example-project/utility"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"os"
+	"time"
+
 	//	"go.mongodb.org/mongo-driver/x/mongo/driver/uuid"
 	"github.com/google/uuid"
 	"net/http"
@@ -204,4 +208,51 @@ func (handler Handler) DeleteByIdHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, response)
+}
+
+func (handler Handler) OauthUrlGetter(c *gin.Context) {
+	service, serviceOK := c.GetQuery("service")
+	if serviceOK == false {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": "service query wasn't supplied",
+		})
+		return
+	}
+	if service == "github" {
+		state := time.Now().Unix()
+		scopeList := "read:user%20user:email"
+		githubURL := fmt.Sprintf("https://github.com/login/oauth/authorize?client_id=%v&scope=%v$state=%d", os.Getenv("OAUTH_GITHUB_CLIENT_ID"), scopeList, state)
+		c.JSON(http.StatusOK, gin.H{
+			"service": "github",
+			"url":     githubURL,
+		})
+	}
+}
+
+func (handler Handler) OauthCallback(c *gin.Context) {
+	code, codeOK := c.GetQuery("code")
+	fmt.Println(code)
+	if codeOK == true {
+		c.Redirect(http.StatusMovedPermanently, "/static/success.html")
+		var id = uuid.New()
+		cache.AddToCacheMap(id.String(), code, MyCacheMap)
+		emp := []model.Employee{
+			model.Employee{ID: id.String(), FirstName: "Thomas", LastName: "Müller", Email: "thomas.müller@gmail.com", Auth: model.HashedAuth{}},
+		}
+		result, err := handler.ServiceInterface.CreateEmployees(emp)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"errorMessage": err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"guestToken": code,
+			"guestID":    id.String(),
+			"results":    result,
+		})
+		return
+	} else {
+		c.Redirect(http.StatusMovedPermanently, "/static/fail.html")
+	}
 }
