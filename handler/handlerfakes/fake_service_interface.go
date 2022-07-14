@@ -45,6 +45,20 @@ type FakeServiceInterface struct {
 	getEmployeeByIdReturnsOnCall map[int]struct {
 		result1 model.Employee
 	}
+	GetPaginatedEmployeesStub        func(int, int) (model.PaginatedPayload, error)
+	getPaginatedEmployeesMutex       sync.RWMutex
+	getPaginatedEmployeesArgsForCall []struct {
+		arg1 int
+		arg2 int
+	}
+	getPaginatedEmployeesReturns struct {
+		result1 model.PaginatedPayload
+		result2 error
+	}
+	getPaginatedEmployeesReturnsOnCall map[int]struct {
+		result1 model.PaginatedPayload
+		result2 error
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -243,6 +257,71 @@ func (fake *FakeServiceInterface) GetEmployeeByIdReturnsOnCall(i int, result1 mo
 	}{result1}
 }
 
+func (fake *FakeServiceInterface) GetPaginatedEmployees(arg1 int, arg2 int) (model.PaginatedPayload, error) {
+	fake.getPaginatedEmployeesMutex.Lock()
+	ret, specificReturn := fake.getPaginatedEmployeesReturnsOnCall[len(fake.getPaginatedEmployeesArgsForCall)]
+	fake.getPaginatedEmployeesArgsForCall = append(fake.getPaginatedEmployeesArgsForCall, struct {
+		arg1 int
+		arg2 int
+	}{arg1, arg2})
+	stub := fake.GetPaginatedEmployeesStub
+	fakeReturns := fake.getPaginatedEmployeesReturns
+	fake.recordInvocation("GetPaginatedEmployees", []interface{}{arg1, arg2})
+	fake.getPaginatedEmployeesMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) GetPaginatedEmployeesCallCount() int {
+	fake.getPaginatedEmployeesMutex.RLock()
+	defer fake.getPaginatedEmployeesMutex.RUnlock()
+	return len(fake.getPaginatedEmployeesArgsForCall)
+}
+
+func (fake *FakeServiceInterface) GetPaginatedEmployeesCalls(stub func(int, int) (model.PaginatedPayload, error)) {
+	fake.getPaginatedEmployeesMutex.Lock()
+	defer fake.getPaginatedEmployeesMutex.Unlock()
+	fake.GetPaginatedEmployeesStub = stub
+}
+
+func (fake *FakeServiceInterface) GetPaginatedEmployeesArgsForCall(i int) (int, int) {
+	fake.getPaginatedEmployeesMutex.RLock()
+	defer fake.getPaginatedEmployeesMutex.RUnlock()
+	argsForCall := fake.getPaginatedEmployeesArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeServiceInterface) GetPaginatedEmployeesReturns(result1 model.PaginatedPayload, result2 error) {
+	fake.getPaginatedEmployeesMutex.Lock()
+	defer fake.getPaginatedEmployeesMutex.Unlock()
+	fake.GetPaginatedEmployeesStub = nil
+	fake.getPaginatedEmployeesReturns = struct {
+		result1 model.PaginatedPayload
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) GetPaginatedEmployeesReturnsOnCall(i int, result1 model.PaginatedPayload, result2 error) {
+	fake.getPaginatedEmployeesMutex.Lock()
+	defer fake.getPaginatedEmployeesMutex.Unlock()
+	fake.GetPaginatedEmployeesStub = nil
+	if fake.getPaginatedEmployeesReturnsOnCall == nil {
+		fake.getPaginatedEmployeesReturnsOnCall = make(map[int]struct {
+			result1 model.PaginatedPayload
+			result2 error
+		})
+	}
+	fake.getPaginatedEmployeesReturnsOnCall[i] = struct {
+		result1 model.PaginatedPayload
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
@@ -252,6 +331,8 @@ func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	defer fake.deleteEmployeeMutex.RUnlock()
 	fake.getEmployeeByIdMutex.RLock()
 	defer fake.getEmployeeByIdMutex.RUnlock()
+	fake.getPaginatedEmployeesMutex.RLock()
+	defer fake.getPaginatedEmployeesMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

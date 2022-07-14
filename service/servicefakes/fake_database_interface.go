@@ -32,6 +32,20 @@ type FakeDatabaseInterface struct {
 	getByIDReturnsOnCall map[int]struct {
 		result1 model.Employee
 	}
+	GetPaginatedStub        func(int, int) (model.PaginatedPayload, error)
+	getPaginatedMutex       sync.RWMutex
+	getPaginatedArgsForCall []struct {
+		arg1 int
+		arg2 int
+	}
+	getPaginatedReturns struct {
+		result1 model.PaginatedPayload
+		result2 error
+	}
+	getPaginatedReturnsOnCall map[int]struct {
+		result1 model.PaginatedPayload
+		result2 error
+	}
 	UpdateManyStub        func([]interface{}) (interface{}, error)
 	updateManyMutex       sync.RWMutex
 	updateManyArgsForCall []struct {
@@ -174,6 +188,71 @@ func (fake *FakeDatabaseInterface) GetByIDReturnsOnCall(i int, result1 model.Emp
 	}{result1}
 }
 
+func (fake *FakeDatabaseInterface) GetPaginated(arg1 int, arg2 int) (model.PaginatedPayload, error) {
+	fake.getPaginatedMutex.Lock()
+	ret, specificReturn := fake.getPaginatedReturnsOnCall[len(fake.getPaginatedArgsForCall)]
+	fake.getPaginatedArgsForCall = append(fake.getPaginatedArgsForCall, struct {
+		arg1 int
+		arg2 int
+	}{arg1, arg2})
+	stub := fake.GetPaginatedStub
+	fakeReturns := fake.getPaginatedReturns
+	fake.recordInvocation("GetPaginated", []interface{}{arg1, arg2})
+	fake.getPaginatedMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeDatabaseInterface) GetPaginatedCallCount() int {
+	fake.getPaginatedMutex.RLock()
+	defer fake.getPaginatedMutex.RUnlock()
+	return len(fake.getPaginatedArgsForCall)
+}
+
+func (fake *FakeDatabaseInterface) GetPaginatedCalls(stub func(int, int) (model.PaginatedPayload, error)) {
+	fake.getPaginatedMutex.Lock()
+	defer fake.getPaginatedMutex.Unlock()
+	fake.GetPaginatedStub = stub
+}
+
+func (fake *FakeDatabaseInterface) GetPaginatedArgsForCall(i int) (int, int) {
+	fake.getPaginatedMutex.RLock()
+	defer fake.getPaginatedMutex.RUnlock()
+	argsForCall := fake.getPaginatedArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeDatabaseInterface) GetPaginatedReturns(result1 model.PaginatedPayload, result2 error) {
+	fake.getPaginatedMutex.Lock()
+	defer fake.getPaginatedMutex.Unlock()
+	fake.GetPaginatedStub = nil
+	fake.getPaginatedReturns = struct {
+		result1 model.PaginatedPayload
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDatabaseInterface) GetPaginatedReturnsOnCall(i int, result1 model.PaginatedPayload, result2 error) {
+	fake.getPaginatedMutex.Lock()
+	defer fake.getPaginatedMutex.Unlock()
+	fake.GetPaginatedStub = nil
+	if fake.getPaginatedReturnsOnCall == nil {
+		fake.getPaginatedReturnsOnCall = make(map[int]struct {
+			result1 model.PaginatedPayload
+			result2 error
+		})
+	}
+	fake.getPaginatedReturnsOnCall[i] = struct {
+		result1 model.PaginatedPayload
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeDatabaseInterface) UpdateMany(arg1 []interface{}) (interface{}, error) {
 	var arg1Copy []interface{}
 	if arg1 != nil {
@@ -250,6 +329,8 @@ func (fake *FakeDatabaseInterface) Invocations() map[string][][]interface{} {
 	defer fake.deleteByIDMutex.RUnlock()
 	fake.getByIDMutex.RLock()
 	defer fake.getByIDMutex.RUnlock()
+	fake.getPaginatedMutex.RLock()
+	defer fake.getPaginatedMutex.RUnlock()
 	fake.updateManyMutex.RLock()
 	defer fake.updateManyMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

@@ -39,3 +39,8 @@ type EmployeeReturn struct {
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
 }
+
+type PaginatedPayload struct {
+	Employees []EmployeeReturn `json:"employees"`
+	PageLimit int              `json:"pageLimit"`
+}
