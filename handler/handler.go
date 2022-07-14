@@ -8,8 +8,6 @@ import (
 	"example-project/utility"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"io/ioutil"
-	"log"
 	"strconv"
 
 	//	"go.mongodb.org/mongo-driver/x/mongo/driver/uuid"
@@ -279,17 +277,18 @@ func (handler Handler) OAuthRedirectHandler(context *gin.Context) {
 	guestMsg := "Success! Your Guest-Id is :" + githubUserId + " and your guest-token is: " + t.AccessToken
 
 	context.JSON(200, guestMsg)
-	githubData := getGithubData(t.AccessToken)
+	//	githubData := getGithubData(t.AccessToken)
 
-	fmt.Println(githubData)
+	//	fmt.Println(githubData)
 
-	context.JSON(200, githubData)
+	//	context.JSON(200, githubData)
 }
 
 func (handler Handler) OAuthStarterHandler(context *gin.Context) {
 	context.JSON(200, "https://github.com/login/oauth/authorize?client_id=69678bb4a1b8a0c2462f")
 }
 
+/*
 func getGithubData(accessToken string) string {
 	// Get request to a set URL
 	req, reqerr := http.NewRequest(
@@ -318,3 +317,5 @@ func getGithubData(accessToken string) string {
 	// Convert byte slice to string and return
 	return string(respbody)
 }
+
+*/
