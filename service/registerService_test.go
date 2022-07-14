@@ -63,9 +63,9 @@ func TestGetPaginatedEmployees(t *testing.T) {
 	fakeDB := &servicefakes.FakeDatabaseInterface{}
 	fakePaginatedPayload := model.PaginatedPayload{
 		PageLimit: 2,
-		Employees: []model.Employee{
-			model.Employee{ID: "100", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
-			model.Employee{ID: "200", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
+		Employees: []model.EmployeeReturn{
+			model.EmployeeReturn{ID: "100", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
+			model.EmployeeReturn{ID: "200", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com"},
 		},
 	}
 	fakeDB.GetPaginatedReturns(fakePaginatedPayload, nil)
