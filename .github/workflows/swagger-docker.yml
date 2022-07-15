@@ -58,13 +58,12 @@ jobs:
         working-directory: resources/swagdeploy
         run: node app.js
       - name: Copy Swagger to Repo
-        run: cp resources/swagdeploy/output/collection.yml ./postman
+        run: cp resources/swagdeploy/output/collection.yml /
       - name: Read Collection Yaml TEST
         run: cat postman/collection.yml
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: check working directory
-        run: pwd
+
 
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
