@@ -60,14 +60,14 @@ func (handler Handler) CreateEmployeeHandler(c *gin.Context) {
 	hashedEmployees := utility.HashEmployees(employees)
 	index, _ := handler.DoUserExist(hashedEmployees)
 	if index {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+		c.AbortWithStatusJSON(409, gin.H{
 			"errorMessage": "There cannot be duplicated Ids!",
 		})
 		return
 	}
 	response, err := handler.ServiceInterface.CreateEmployees(hashedEmployees)
 
-	c.JSON(200, response)
+	c.JSON(201, response)
 }
 
 func (handler Handler) GetEmployeeHandler(c *gin.Context) {
@@ -122,12 +122,12 @@ func (handler Handler) Login(c *gin.Context) {
 			successMsg := "Success! Your Token is: " + uuidString
 			MyCacheMap = cache.AddToCacheMap(employee.ID, uuidString, MyCacheMap)
 
-			c.JSON(http.StatusOK, successMsg)
+			c.JSON(201, successMsg)
 			return
 		}
 	}
 	errMsg = "The username or password is wrong"
-	c.AbortWithStatusJSON(401, errMsg)
+	c.AbortWithStatusJSON(409, errMsg)
 	c.Writer.Header().Set("WWW-Authenticate", `Basic realm="restricted", charset="UTF-8"`)
 	return
 }
@@ -163,7 +163,7 @@ func (handler Handler) DoUserExist(emp []model.Employee) (bool, []model.Employee
 func (handler Handler) ValidateToken(c *gin.Context) {
 
 	if len(c.Request.Header.Values("Authorization")) < 1 {
-		c.AbortWithStatusJSON(403, noTokenErr)
+		c.AbortWithStatusJSON(400, noTokenErr)
 		return
 	}
 	reqToken := utility.GetBearerToken(c)
@@ -193,7 +193,7 @@ func (handler Handler) Logout(c *gin.Context) {
 		MyCacheMap = cache.RemoveFromCacheMap(id, MyCacheMap)
 		c.JSON(200, successMessage)
 	} else {
-		c.JSON(400, failMessage)
+		c.JSON(404, failMessage)
 	}
 }
 
@@ -210,12 +210,12 @@ func (handler Handler) DeleteByIdHandler(c *gin.Context) {
 	response, err := handler.ServiceInterface.DeleteEmployee(pathParam)
 
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+		c.AbortWithStatusJSON(404, gin.H{
 			"errorMessage": err.Error(),
 		})
 		return
 	}
-	c.JSON(http.StatusOK, response)
+	c.JSON(204, response)
 }
 
 func (handler Handler) GetAllEmployeesHandler(c *gin.Context) {
@@ -267,7 +267,7 @@ func (handler Handler) OAuthRedirectHandler(context *gin.Context) {
 	//	fmt.Println(res)
 	var t OAuthAccessResponse
 	if err = json.NewDecoder(res.Body).Decode(&t); err != nil {
-		context.AbortWithStatusJSON(402, "Couldnt fetch access token")
+		context.AbortWithStatusJSON(403, "Couldnt fetch access token")
 	}
 
 	githubUserId := uuid.New().String()
@@ -276,7 +276,7 @@ func (handler Handler) OAuthRedirectHandler(context *gin.Context) {
 
 	guestMsg := "Success! Your Guest-Id is :" + githubUserId + " and your guest-token is: " + t.AccessToken
 
-	context.JSON(200, guestMsg)
+	context.JSON(201, guestMsg)
 	//	githubData := getGithubData(t.AccessToken)
 
 	//	fmt.Println(githubData)
