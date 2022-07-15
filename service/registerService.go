@@ -10,6 +10,7 @@ type DatabaseInterface interface {
 	GetByID(id string) model.Employee
 	DeleteByID(id string) (interface{}, error)
 	GetPaginated(page int, limit int) (model.PaginatedPayload, error)
+	UpdateEmp(update model.EmployeeReturn) (model.EmployeeReturn, error)
 }
 
 type EmployeeService struct {
@@ -50,4 +51,9 @@ func (s EmployeeService) DeleteEmployee(id string) (interface{}, error) {
 func (s EmployeeService) GetPaginatedEmployees(page int, limit int) (model.PaginatedPayload, error) {
 	result, err := s.DbService.GetPaginated(page, limit)
 	return result, err
+}
+
+func (s EmployeeService) UpdateEmployee(update model.EmployeeReturn) (model.EmployeeReturn, error) {
+	_, err := s.DbService.UpdateEmp(update)
+	return update, err
 }

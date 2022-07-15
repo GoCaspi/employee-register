@@ -124,3 +124,23 @@ func (c Client) GetPaginated(page int, limit int) (model.PaginatedPayload, error
 	return paginatedPayload, nil
 
 }
+
+func (c Client) UpdateEmp(update model.EmployeeReturn) (model.EmployeeReturn, error) {
+	filter := bson.M{"id": update.ID}
+	// datensatz zur id auslesen
+	// check doc geschnitten datensatzen
+	// change update
+	updater := bson.D{{"$set", update}}
+
+	results, err := c.Employee.UpdateOne(context.TODO(), filter, updater)
+	if err != nil {
+		log.Println("database error")
+		return model.EmployeeReturn{}, err
+	}
+	if results.ModifiedCount == 0 {
+		err = errors.New("No update could be send to the database")
+		return model.EmployeeReturn{}, err
+	}
+
+	return update, nil
+}

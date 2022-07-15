@@ -21,6 +21,7 @@ type ServiceInterface interface {
 	GetEmployeeById(id string) model.Employee
 	DeleteEmployee(id string) (interface{}, error)
 	GetPaginatedEmployees(page int, limit int) (model.PaginatedPayload, error)
+	UpdateEmployee(update model.EmployeeReturn) (model.EmployeeReturn, error)
 }
 
 var MyCacheMap = cache.NewCacheMap{}
@@ -319,3 +320,41 @@ func getGithubData(accessToken string) string {
 }
 
 */
+
+func (handler Handler) UpdateById(context *gin.Context) {
+	pathParam, ok := context.Params.Get("id")
+
+	if !ok {
+		context.AbortWithStatusJSON(401, "No Id was submitted")
+	}
+
+	response := handler.ServiceInterface.GetEmployeeById(pathParam)
+
+	if response.ID == "" {
+		context.AbortWithStatusJSON(400, "Employee was not found")
+	}
+
+	var payLoad model.EmployeeReturn
+	err := context.ShouldBindJSON(&payLoad)
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": "invalid payload",
+		})
+		return
+	}
+
+	update := model.EmployeeReturn{
+		ID:        response.ID,
+		FirstName: payLoad.FirstName,
+		LastName:  payLoad.LastName,
+		Email:     payLoad.Email,
+	}
+
+	_, err = handler.ServiceInterface.UpdateEmployee(update)
+
+	if err != nil {
+		context.AbortWithStatusJSON(400, err.Error())
+	}
+
+	context.JSON(200, update)
+}
