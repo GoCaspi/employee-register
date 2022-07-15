@@ -63,6 +63,8 @@ jobs:
         run: cat postman/collection.yml
       - name: Checkout repository
         uses: actions/checkout@v3
+      - name: check working directory
+        run: pwd
 
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
