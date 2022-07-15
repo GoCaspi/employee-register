@@ -41,20 +41,19 @@ jobs:
           repository: wok-gocaspi/swagdeploy
           path: resources/swagdeploy
           ref: master
-      - name: Install SwagDeploy Dependencies
-        uses: actions/setup-node@v3
-        working-directory: resources/swagdeploy
-        run: npm i
+      - uses: actions/setup-node@v3
         with:
           node-version: 14.x
+      - name: Install SwagDeploy Dependencies
+
+        working-directory: resources/swagdeploy
+        run: npm i
+
       - name: Copy postmanCollection
         run: cp *.postman_collection.json resources/swagdeploy
       - name: Execute SwagDeploy
-        uses: actions/setup-node@v3
         working-directory: resources/swagdeploy
         run: node app.js
-        with:
-          node-version: 14.x
       - name: Copy Swagger to Repo
         run: cp resources/swagdeploy/collection.yml ./postman
       - name: Read Collection Yaml TEST
