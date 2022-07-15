@@ -50,7 +50,7 @@ jobs:
         run: npm i
 
       - name: Copy postmanCollection
-        run: cp *.postman_collection.json resources/swagdeploy
+        run: cp postman/*.postman_collection.json resources/swagdeploy
       - name: Execute SwagDeploy
         working-directory: resources/swagdeploy
         run: node app.js
