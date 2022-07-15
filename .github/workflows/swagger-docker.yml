@@ -58,7 +58,7 @@ jobs:
         working-directory: resources/swagdeploy
         run: node app.js
       - name: Copy Swagger to Repo
-        run: cp resources/swagdeploy/output/collection.yml /
+        run: cp resources/swagdeploy/output/collection.yml postman
       - name: Read Collection Yaml TEST
         run: cat postman/collection.yml
       - name: Checkout repository
