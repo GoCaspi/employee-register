@@ -7,7 +7,7 @@ import (
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . DatabaseInterface
 type DatabaseInterface interface {
 	UpdateMany(docs []interface{}) (interface{}, error)
-	GetByID(id string) model.Employee
+	GetByID(id string) (model.Employee, error)
 	DeleteByID(id string) (interface{}, error)
 	GetPaginated(page int, limit int) (model.PaginatedPayload, error)
 }
@@ -39,7 +39,7 @@ func (s EmployeeService) CreateEmployees(employees []model.Employee) (interface{
 	return response, nil
 }
 
-func (s EmployeeService) GetEmployeeById(id string) model.Employee {
+func (s EmployeeService) GetEmployeeById(id string) (model.Employee, error) {
 	return s.DbService.GetByID(id)
 }
 func (s EmployeeService) DeleteEmployee(id string) (interface{}, error) {

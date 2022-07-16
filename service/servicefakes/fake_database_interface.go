@@ -21,16 +21,18 @@ type FakeDatabaseInterface struct {
 		result1 interface{}
 		result2 error
 	}
-	GetByIDStub        func(string) model.Employee
+	GetByIDStub        func(string) (model.Employee, error)
 	getByIDMutex       sync.RWMutex
 	getByIDArgsForCall []struct {
 		arg1 string
 	}
 	getByIDReturns struct {
 		result1 model.Employee
+		result2 error
 	}
 	getByIDReturnsOnCall map[int]struct {
 		result1 model.Employee
+		result2 error
 	}
 	GetPaginatedStub        func(int, int) (model.PaginatedPayload, error)
 	getPaginatedMutex       sync.RWMutex
@@ -127,7 +129,7 @@ func (fake *FakeDatabaseInterface) DeleteByIDReturnsOnCall(i int, result1 interf
 	}{result1, result2}
 }
 
-func (fake *FakeDatabaseInterface) GetByID(arg1 string) model.Employee {
+func (fake *FakeDatabaseInterface) GetByID(arg1 string) (model.Employee, error) {
 	fake.getByIDMutex.Lock()
 	ret, specificReturn := fake.getByIDReturnsOnCall[len(fake.getByIDArgsForCall)]
 	fake.getByIDArgsForCall = append(fake.getByIDArgsForCall, struct {
@@ -141,9 +143,9 @@ func (fake *FakeDatabaseInterface) GetByID(arg1 string) model.Employee {
 		return stub(arg1)
 	}
 	if specificReturn {
-		return ret.result1
+		return ret.result1, ret.result2
 	}
-	return fakeReturns.result1
+	return fakeReturns.result1, fakeReturns.result2
 }
 
 func (fake *FakeDatabaseInterface) GetByIDCallCount() int {
@@ -152,7 +154,7 @@ func (fake *FakeDatabaseInterface) GetByIDCallCount() int {
 	return len(fake.getByIDArgsForCall)
 }
 
-func (fake *FakeDatabaseInterface) GetByIDCalls(stub func(string) model.Employee) {
+func (fake *FakeDatabaseInterface) GetByIDCalls(stub func(string) (model.Employee, error)) {
 	fake.getByIDMutex.Lock()
 	defer fake.getByIDMutex.Unlock()
 	fake.GetByIDStub = stub
@@ -165,27 +167,30 @@ func (fake *FakeDatabaseInterface) GetByIDArgsForCall(i int) string {
 	return argsForCall.arg1
 }
 
-func (fake *FakeDatabaseInterface) GetByIDReturns(result1 model.Employee) {
+func (fake *FakeDatabaseInterface) GetByIDReturns(result1 model.Employee, result2 error) {
 	fake.getByIDMutex.Lock()
 	defer fake.getByIDMutex.Unlock()
 	fake.GetByIDStub = nil
 	fake.getByIDReturns = struct {
 		result1 model.Employee
-	}{result1}
+		result2 error
+	}{result1, result2}
 }
 
-func (fake *FakeDatabaseInterface) GetByIDReturnsOnCall(i int, result1 model.Employee) {
+func (fake *FakeDatabaseInterface) GetByIDReturnsOnCall(i int, result1 model.Employee, result2 error) {
 	fake.getByIDMutex.Lock()
 	defer fake.getByIDMutex.Unlock()
 	fake.GetByIDStub = nil
 	if fake.getByIDReturnsOnCall == nil {
 		fake.getByIDReturnsOnCall = make(map[int]struct {
 			result1 model.Employee
+			result2 error
 		})
 	}
 	fake.getByIDReturnsOnCall[i] = struct {
 		result1 model.Employee
-	}{result1}
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeDatabaseInterface) GetPaginated(arg1 int, arg2 int) (model.PaginatedPayload, error) {

@@ -18,7 +18,7 @@ import (
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . ServiceInterface
 type ServiceInterface interface {
 	CreateEmployees(employees []model.Employee) (interface{}, error)
-	GetEmployeeById(id string) model.Employee
+	GetEmployeeById(id string) (model.Employee, error)
 	DeleteEmployee(id string) (interface{}, error)
 	GetPaginatedEmployees(page int, limit int) (model.PaginatedPayload, error)
 }
@@ -79,14 +79,22 @@ func (handler Handler) GetEmployeeHandler(c *gin.Context) {
 		return
 	}
 
-	response := handler.ServiceInterface.GetEmployeeById(pathParam)
-	employee := model.EmployeeReturn{
-		ID:        response.ID,
-		FirstName: response.FirstName,
-		LastName:  response.LastName,
-		Email:     response.Email,
+	response, err := handler.ServiceInterface.GetEmployeeById(pathParam)
+
+	if err != nil {
+		c.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	} else {
+		employee := model.EmployeeReturn{
+			ID:        response.ID,
+			FirstName: response.FirstName,
+			LastName:  response.LastName,
+			Email:     response.Email,
+		}
+		c.JSON(http.StatusOK, employee)
 	}
-	c.JSON(http.StatusOK, employee)
 }
 
 func (handler Handler) Login(c *gin.Context) {
@@ -96,13 +104,15 @@ func (handler Handler) Login(c *gin.Context) {
 		c.AbortWithStatusJSON(400, errMsg)
 		return
 	}
-	employee := handler.ServiceInterface.GetEmployeeById(id)
-	//	if err != nil {
-	//		c.AbortWithStatusJSON(400, noEmployeeFound)
-	//		return
-	//	}
+	employee, err := handler.ServiceInterface.GetEmployeeById(id)
+	if err != nil {
+		c.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
 	var payLoad model.Auth
-	err := c.ShouldBindJSON(&payLoad)
+	err = c.ShouldBindJSON(&payLoad)
 	errMsg = invalidPayloadMsg
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, errMsg)
@@ -137,7 +147,7 @@ func (handler Handler) DoUserExist(emp []model.Employee) (bool, []model.Employee
 	var errorEmployees []model.Employee
 
 	for _, employee := range emp {
-		response := handler.ServiceInterface.GetEmployeeById(employee.ID)
+		response, _ := handler.ServiceInterface.GetEmployeeById(employee.ID)
 		if len(response.ID) != 0 {
 			errorEmployees = append(errorEmployees, employee)
 		} else {
