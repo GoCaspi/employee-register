@@ -36,10 +36,11 @@ type DbConfig struct {
 }
 
 type EmployeeReturn struct {
-	ID        string `json:"id"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string `json:"email"`
+	ID         string `json:"id"`
+	FirstName  string `json:"first_name"`
+	LastName   string `json:"last_name"`
+	Email      string `json:"email"`
+	Department string `json:"department" bson:"department"`
 }
 
 type PaginatedPayload struct {

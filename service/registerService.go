@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"example-project/model"
 )
 
@@ -10,7 +11,7 @@ type DatabaseInterface interface {
 	GetByID(id string) model.Employee
 	DeleteByID(id string) (interface{}, error)
 	GetPaginated(page int, limit int) (model.PaginatedPayload, error)
-	GetEmployeesByDepartment(department string) []model.Employee
+	GetEmployeesByDepartment(department string) ([]model.EmployeeReturn, error)
 }
 
 type EmployeeService struct {
@@ -53,7 +54,11 @@ func (s EmployeeService) GetPaginatedEmployees(page int, limit int) (model.Pagin
 	return result, err
 }
 
-func (s EmployeeService) GetEmployeesDepartmentFilter(department string) []model.Employee {
-	result := s.DbService.GetEmployeesByDepartment(department)
-	return result
+func (s EmployeeService) GetEmployeesDepartmentFilter(department string) ([]model.EmployeeReturn, error) {
+	result, err := s.DbService.GetEmployeesByDepartment(department)
+	if len(result) == 0 {
+		noResultsErr := errors.New("No results could be found to your query")
+		return result, noResultsErr
+	}
+	return result, err
 }

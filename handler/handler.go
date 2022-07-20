@@ -21,7 +21,7 @@ type ServiceInterface interface {
 	GetEmployeeById(id string) model.Employee
 	DeleteEmployee(id string) (interface{}, error)
 	GetPaginatedEmployees(page int, limit int) (model.PaginatedPayload, error)
-	GetEmployeesDepartmentFilter(department string) []model.Employee
+	GetEmployeesDepartmentFilter(department string) ([]model.EmployeeReturn, error)
 }
 
 var MyCacheMap = cache.NewCacheMap{}
@@ -323,11 +323,22 @@ func getGithubData(accessToken string) string {
 func (handler Handler) DepartmentFilter(context *gin.Context) {
 	department, depOk := context.GetQuery("department")
 	if !depOk {
-		fmt.Println("No query of department given")
+		noQueryError := "No department was given in the query parameter!"
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": noQueryError,
+		})
+		return
 	}
 
-	response := handler.ServiceInterface.GetEmployeesDepartmentFilter(department)
+	response, err := handler.ServiceInterface.GetEmployeesDepartmentFilter(department)
+	if err != nil {
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
 
 	context.JSON(200, response)
+	return
 
 }
