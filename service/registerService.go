@@ -56,7 +56,10 @@ func (s EmployeeService) GetPaginatedEmployees(page int, limit int) (model.Pagin
 
 func (s EmployeeService) GetEmployeesDepartmentFilter(department string) ([]model.EmployeeReturn, error) {
 	result, err := s.DbService.GetEmployeesByDepartment(department)
-	if len(result) == 0 {
+	if err != nil {
+		return []model.EmployeeReturn{}, err
+	}
+	if len(result) == 0 && err == nil {
 		noResultsErr := errors.New("No results could be found to your query")
 		return result, noResultsErr
 	}

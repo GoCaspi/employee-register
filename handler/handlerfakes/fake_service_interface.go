@@ -45,6 +45,19 @@ type FakeServiceInterface struct {
 	getEmployeeByIdReturnsOnCall map[int]struct {
 		result1 model.Employee
 	}
+	GetEmployeesDepartmentFilterStub        func(string) ([]model.EmployeeReturn, error)
+	getEmployeesDepartmentFilterMutex       sync.RWMutex
+	getEmployeesDepartmentFilterArgsForCall []struct {
+		arg1 string
+	}
+	getEmployeesDepartmentFilterReturns struct {
+		result1 []model.EmployeeReturn
+		result2 error
+	}
+	getEmployeesDepartmentFilterReturnsOnCall map[int]struct {
+		result1 []model.EmployeeReturn
+		result2 error
+	}
 	GetPaginatedEmployeesStub        func(int, int) (model.PaginatedPayload, error)
 	getPaginatedEmployeesMutex       sync.RWMutex
 	getPaginatedEmployeesArgsForCall []struct {
@@ -257,6 +270,70 @@ func (fake *FakeServiceInterface) GetEmployeeByIdReturnsOnCall(i int, result1 mo
 	}{result1}
 }
 
+func (fake *FakeServiceInterface) GetEmployeesDepartmentFilter(arg1 string) ([]model.EmployeeReturn, error) {
+	fake.getEmployeesDepartmentFilterMutex.Lock()
+	ret, specificReturn := fake.getEmployeesDepartmentFilterReturnsOnCall[len(fake.getEmployeesDepartmentFilterArgsForCall)]
+	fake.getEmployeesDepartmentFilterArgsForCall = append(fake.getEmployeesDepartmentFilterArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.GetEmployeesDepartmentFilterStub
+	fakeReturns := fake.getEmployeesDepartmentFilterReturns
+	fake.recordInvocation("GetEmployeesDepartmentFilter", []interface{}{arg1})
+	fake.getEmployeesDepartmentFilterMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) GetEmployeesDepartmentFilterCallCount() int {
+	fake.getEmployeesDepartmentFilterMutex.RLock()
+	defer fake.getEmployeesDepartmentFilterMutex.RUnlock()
+	return len(fake.getEmployeesDepartmentFilterArgsForCall)
+}
+
+func (fake *FakeServiceInterface) GetEmployeesDepartmentFilterCalls(stub func(string) ([]model.EmployeeReturn, error)) {
+	fake.getEmployeesDepartmentFilterMutex.Lock()
+	defer fake.getEmployeesDepartmentFilterMutex.Unlock()
+	fake.GetEmployeesDepartmentFilterStub = stub
+}
+
+func (fake *FakeServiceInterface) GetEmployeesDepartmentFilterArgsForCall(i int) string {
+	fake.getEmployeesDepartmentFilterMutex.RLock()
+	defer fake.getEmployeesDepartmentFilterMutex.RUnlock()
+	argsForCall := fake.getEmployeesDepartmentFilterArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeServiceInterface) GetEmployeesDepartmentFilterReturns(result1 []model.EmployeeReturn, result2 error) {
+	fake.getEmployeesDepartmentFilterMutex.Lock()
+	defer fake.getEmployeesDepartmentFilterMutex.Unlock()
+	fake.GetEmployeesDepartmentFilterStub = nil
+	fake.getEmployeesDepartmentFilterReturns = struct {
+		result1 []model.EmployeeReturn
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) GetEmployeesDepartmentFilterReturnsOnCall(i int, result1 []model.EmployeeReturn, result2 error) {
+	fake.getEmployeesDepartmentFilterMutex.Lock()
+	defer fake.getEmployeesDepartmentFilterMutex.Unlock()
+	fake.GetEmployeesDepartmentFilterStub = nil
+	if fake.getEmployeesDepartmentFilterReturnsOnCall == nil {
+		fake.getEmployeesDepartmentFilterReturnsOnCall = make(map[int]struct {
+			result1 []model.EmployeeReturn
+			result2 error
+		})
+	}
+	fake.getEmployeesDepartmentFilterReturnsOnCall[i] = struct {
+		result1 []model.EmployeeReturn
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeServiceInterface) GetPaginatedEmployees(arg1 int, arg2 int) (model.PaginatedPayload, error) {
 	fake.getPaginatedEmployeesMutex.Lock()
 	ret, specificReturn := fake.getPaginatedEmployeesReturnsOnCall[len(fake.getPaginatedEmployeesArgsForCall)]
@@ -331,6 +408,8 @@ func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	defer fake.deleteEmployeeMutex.RUnlock()
 	fake.getEmployeeByIdMutex.RLock()
 	defer fake.getEmployeeByIdMutex.RUnlock()
+	fake.getEmployeesDepartmentFilterMutex.RLock()
+	defer fake.getEmployeesDepartmentFilterMutex.RUnlock()
 	fake.getPaginatedEmployeesMutex.RLock()
 	defer fake.getPaginatedEmployeesMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

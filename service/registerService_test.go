@@ -73,3 +73,47 @@ func TestGetPaginatedEmployees(t *testing.T) {
 	actual, err := serviceInstance.GetPaginatedEmployees(1, 2)
 	assert.Equal(t, fakePaginatedPayload, actual, err)
 }
+
+func TestEmployeeService_GetEmployeesDepartmentFilter(t *testing.T) {
+	fakeDb := &servicefakes.FakeDatabaseInterface{}
+	fakePayload := []model.EmployeeReturn{
+		model.EmployeeReturn{ID: "1", FirstName: "Leon", LastName: "Ceasar", Email: "leon.ceasar@mail.com", Department: "fakeDepartment"},
+		model.EmployeeReturn{ID: "1", FirstName: "Leon", LastName: "Ceasar", Email: "leon.ceasar@mail.com", Department: "fakeDepartment"},
+		model.EmployeeReturn{ID: "1", FirstName: "Leon", LastName: "Ceasar", Email: "leon.ceasar@mail.com", Department: "fakeDepartment"},
+	}
+	fakeNilPayload := []model.EmployeeReturn{}
+	fakeDecodeErr := errors.New("Decode went wrong")
+	fakeNoResultErr := errors.New("No results could be found to your query")
+	var tests = []struct {
+		hasDecodeErr bool
+		hasNoPayload bool
+		payload      []model.EmployeeReturn
+		err          error
+	}{
+		{false, false, fakePayload, nil},
+		{true, false, fakeNilPayload, fakeDecodeErr},
+		{false, true, fakeNilPayload, nil},
+	}
+
+	for _, tt := range tests {
+		fakeDb.GetEmployeesByDepartmentReturns(tt.payload, tt.err)
+		serviceInstance := service.NewEmployeeService(fakeDb)
+
+		if !tt.hasNoPayload && !tt.hasDecodeErr && tt.err == nil {
+			actualResult, actualErr := serviceInstance.GetEmployeesDepartmentFilter(tt.payload[0].Department)
+			assert.Equal(t, fakePayload, actualResult)
+			assert.Equal(t, tt.err, actualErr)
+		}
+		if tt.hasDecodeErr {
+			actualResult, actualErr := serviceInstance.GetEmployeesDepartmentFilter("fakeDepartment")
+			assert.Equal(t, tt.payload, actualResult)
+			assert.Equal(t, tt.err, actualErr)
+		}
+
+		if tt.hasNoPayload {
+			actualResult, actualErr := serviceInstance.GetEmployeesDepartmentFilter("fakeDepartment")
+			assert.Equal(t, tt.payload, actualResult)
+			assert.Equal(t, fakeNoResultErr, actualErr)
+		}
+	}
+}

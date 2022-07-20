@@ -19,6 +19,11 @@ type FakeHandlerInterface struct {
 	deleteByIdHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
+	DepartmentFilterStub        func(*gin.Context)
+	departmentFilterMutex       sync.RWMutex
+	departmentFilterArgsForCall []struct {
+		arg1 *gin.Context
+	}
 	GetAllEmployeesHandlerStub        func(*gin.Context)
 	getAllEmployeesHandlerMutex       sync.RWMutex
 	getAllEmployeesHandlerArgsForCall []struct {
@@ -119,6 +124,38 @@ func (fake *FakeHandlerInterface) DeleteByIdHandlerArgsForCall(i int) *gin.Conte
 	fake.deleteByIdHandlerMutex.RLock()
 	defer fake.deleteByIdHandlerMutex.RUnlock()
 	argsForCall := fake.deleteByIdHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeHandlerInterface) DepartmentFilter(arg1 *gin.Context) {
+	fake.departmentFilterMutex.Lock()
+	fake.departmentFilterArgsForCall = append(fake.departmentFilterArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.DepartmentFilterStub
+	fake.recordInvocation("DepartmentFilter", []interface{}{arg1})
+	fake.departmentFilterMutex.Unlock()
+	if stub != nil {
+		fake.DepartmentFilterStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) DepartmentFilterCallCount() int {
+	fake.departmentFilterMutex.RLock()
+	defer fake.departmentFilterMutex.RUnlock()
+	return len(fake.departmentFilterArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) DepartmentFilterCalls(stub func(*gin.Context)) {
+	fake.departmentFilterMutex.Lock()
+	defer fake.departmentFilterMutex.Unlock()
+	fake.DepartmentFilterStub = stub
+}
+
+func (fake *FakeHandlerInterface) DepartmentFilterArgsForCall(i int) *gin.Context {
+	fake.departmentFilterMutex.RLock()
+	defer fake.departmentFilterMutex.RUnlock()
+	argsForCall := fake.departmentFilterArgsForCall[i]
 	return argsForCall.arg1
 }
 
@@ -353,6 +390,8 @@ func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	defer fake.createEmployeeHandlerMutex.RUnlock()
 	fake.deleteByIdHandlerMutex.RLock()
 	defer fake.deleteByIdHandlerMutex.RUnlock()
+	fake.departmentFilterMutex.RLock()
+	defer fake.departmentFilterMutex.RUnlock()
 	fake.getAllEmployeesHandlerMutex.RLock()
 	defer fake.getAllEmployeesHandlerMutex.RUnlock()
 	fake.getEmployeeHandlerMutex.RLock()
