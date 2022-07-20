@@ -1,18 +1,20 @@
 package model
 
 type Employee struct {
-	ID        string     `json:"id"`
-	FirstName string     `json:"first_name"`
-	LastName  string     `json:"last_name"`
-	Email     string     `json:"email"`
-	Auth      HashedAuth `json:"auth" bson:"auth"`
+	ID         string     `json:"id"`
+	FirstName  string     `json:"first_name"`
+	LastName   string     `json:"last_name"`
+	Email      string     `json:"email"`
+	Auth       HashedAuth `json:"auth" bson:"auth"`
+	Department string     `json:"department" bson:"department"`
 }
 type EmployeePayload struct {
-	ID        string `json:"id"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string `json:"email"`
-	Auth      Auth   `json:"auth" bson:"auth"`
+	ID         string `json:"id"`
+	FirstName  string `json:"first_name"`
+	LastName   string `json:"last_name"`
+	Email      string `json:"email"`
+	Auth       Auth   `json:"auth" bson:"auth"`
+	Department string `json:"department" bson:"department"`
 }
 
 type Auth struct {

@@ -124,3 +124,29 @@ func (c Client) GetPaginated(page int, limit int) (model.PaginatedPayload, error
 	return paginatedPayload, nil
 
 }
+
+func (c Client) GetEmployeesByDepartment(department string) []model.Employee {
+	var employeeArr []model.Employee
+	filter := bson.M{"department": department}
+	cur, err := c.Employee.Find(context.TODO(), filter)
+	if err != nil {
+		log.Print(err)
+		return nil
+	}
+	defer cur.Close(context.Background())
+	for cur.Next(context.Background()) {
+		// To decode into a struct, use cursor.Decode()
+		var employee model.Employee
+		err := cur.Decode(&employee)
+		if err != nil {
+			log.Print(err)
+			return nil
+		}
+		employeeArr = append(employeeArr, employee)
+	}
+	if err := cur.Err(); err != nil {
+		log.Print(err)
+		return nil
+	}
+	return employeeArr
+}
