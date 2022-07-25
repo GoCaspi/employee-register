@@ -9,8 +9,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"strconv"
-	"time"
-
 	//	"go.mongodb.org/mongo-driver/x/mongo/driver/uuid"
 	"github.com/google/uuid"
 	"net/http"
@@ -345,6 +343,7 @@ func (handler Handler) DepartmentFilter(context *gin.Context) {
 
 }
 
+/*
 func (handler Handler) AddShift(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
@@ -378,3 +377,56 @@ func (handler Handler) AddShift(context *gin.Context) {
 	context.JSON(200, response)
 
 }
+
+*/
+
+func (handler Handler) AddShift(context *gin.Context) {
+
+	id, ok := context.GetQuery("id")
+	if !ok {
+		noQueryError := "No Id was submitted. Please add an id to your query"
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": noQueryError,
+		})
+		return
+	}
+
+	var shiftPayload model.Shift
+	err := context.ShouldBindJSON(&shiftPayload)
+	if err != nil {
+		context.AbortWithStatusJSON(400, gin.H{
+			"errorMessage": "Bad payload",
+		})
+		return
+	}
+
+	employee := handler.ServiceInterface.GetEmployeeById(id)
+
+	response, err := handler.ServiceInterface.AddShift(employee, shiftPayload)
+	if err != nil {
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+
+	context.JSON(200, response)
+
+}
+
+/*
+[
+{
+"week": 1,
+"duties": {
+"Monday": {
+"duty": "Cleaninig",
+"start": "2006-01-02T15:04:05Z",
+"end": "2006-01-02T17:04:05Z",
+"total": 7200000000000
+}
+}
+}
+]
+
+*/

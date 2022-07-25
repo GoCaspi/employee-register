@@ -35,7 +35,7 @@ func CreateRoutes(group *gin.RouterGroup) {
 	group.POST("/register", Handler.CreateEmployeeHandler)
 	group.GET("/github", Handler.OAuthStarterHandler)
 	group.GET("/filter", Handler.DepartmentFilter)
-	group.GET("/addShift", Handler.AddShift)
+	group.POST("/addShift", Handler.AddShift)
 
 	group.GET("/authRedirect", Handler.OAuthRedirectHandler)
 

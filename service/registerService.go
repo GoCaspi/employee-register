@@ -77,8 +77,8 @@ func (s EmployeeService) AddShift(emp model.Employee, shift model.Shift) ([]mode
 		}
 	}
 	if !shiftAlreadySet {
-		newShifts := append(emp.Shifts, shift)
-		emp.Shifts = newShifts
+		//		newShifts := append(emp.Shifts, shift)
+		//		emp.Shifts = newShifts
 		response, err := s.DbService.UpdateEmpShift(shift, emp.ID)
 		fmt.Println(response)
 		return response.Shifts, err
