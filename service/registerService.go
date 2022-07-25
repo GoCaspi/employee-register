@@ -65,3 +65,21 @@ func (s EmployeeService) GetEmployeesDepartmentFilter(department string) ([]mode
 	}
 	return result, err
 }
+
+func (s EmployeeService) AddShift(emp model.Employee, shift model.Shift) ([]model.Shift, error) {
+	var shiftAlreadySet bool = false
+	for _, s := range emp.Shifts {
+
+		if s.Week == shift.Week {
+			shiftAlreadySet = true
+		}
+	}
+	if !shiftAlreadySet {
+		newShifts := append(emp.Shifts, shift)
+		emp.Shifts = newShifts
+		return emp.Shifts, nil
+	} else {
+		shiftErr := errors.New("The shift is already set for that week")
+		return emp.Shifts, shiftErr
+	}
+}
