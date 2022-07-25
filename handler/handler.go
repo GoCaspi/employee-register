@@ -360,7 +360,7 @@ func (handler Handler) AddShift(context *gin.Context) {
 	// mock shift
 	startInput, _ := time.Parse(time.RFC3339, "2006-01-02T15:04:05Z")
 	endInput, _ := time.Parse(time.RFC3339, "2006-01-02T17:04:05Z")
-	myMon := model.Workload{Duty: "Cleaninig", Start: startInput, End: endInput, Total: 2}
+	myMon := model.Workload{Duty: "Cleaninig", Start: startInput, End: endInput, Total: endInput.Sub(startInput)}
 
 	m := make(map[string]model.Workload, 5)
 	m["Monday"] = myMon

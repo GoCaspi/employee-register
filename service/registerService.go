@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"example-project/model"
+	"fmt"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . DatabaseInterface
@@ -12,6 +13,7 @@ type DatabaseInterface interface {
 	DeleteByID(id string) (interface{}, error)
 	GetPaginated(page int, limit int) (model.PaginatedPayload, error)
 	GetEmployeesByDepartment(department string) ([]model.EmployeeReturn, error)
+	UpdateEmpShift(update model.Shift, id string) (model.Employee, error)
 }
 
 type EmployeeService struct {
@@ -77,7 +79,9 @@ func (s EmployeeService) AddShift(emp model.Employee, shift model.Shift) ([]mode
 	if !shiftAlreadySet {
 		newShifts := append(emp.Shifts, shift)
 		emp.Shifts = newShifts
-		return emp.Shifts, nil
+		response, err := s.DbService.UpdateEmpShift(shift, emp.ID)
+		fmt.Println(response)
+		return response.Shifts, err
 	} else {
 		shiftErr := errors.New("The shift is already set for that week")
 		return emp.Shifts, shiftErr

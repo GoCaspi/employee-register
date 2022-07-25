@@ -147,3 +147,27 @@ func (c Client) GetEmployeesByDepartment(department string) ([]model.EmployeeRet
 	}
 	return employeeArr, nil
 }
+
+func (c Client) UpdateEmpShift(update model.Shift, id string) (model.Employee, error) {
+	filter := bson.M{"id": id}
+	// datensatz zur id auslesen
+	// check doc geschnitten datensatzen
+	// change update
+
+	employee := c.GetByID(id)
+	newShifts := append(employee.Shifts, update)
+	employee.Shifts = newShifts
+	updater := bson.D{{"$set", employee}}
+
+	results, err := c.Employee.UpdateOne(context.TODO(), filter, updater)
+	if err != nil {
+		log.Println("database error")
+		return employee, err
+	}
+	if results.ModifiedCount == 0 {
+		err = errors.New("No update could be send to the database")
+		return employee, err
+	}
+
+	return employee, nil
+}

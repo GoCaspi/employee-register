@@ -54,10 +54,10 @@ type PaginatedPayload struct {
 }
 
 type Workload struct {
-	Duty  string    `json:"duty" bson:"duty"`
-	Start time.Time `json:"start" bson:"start"`
-	End   time.Time `json:"end" bson:"end"`
-	Total int       `json:"total" bson:"total"`
+	Duty  string        `json:"duty" bson:"duty"`
+	Start time.Time     `json:"start" bson:"start"`
+	End   time.Time     `json:"end" bson:"end"`
+	Total time.Duration `json:"total" bson:"total"`
 }
 
 type Shift struct {
