@@ -9,6 +9,11 @@ import (
 )
 
 type FakeHandlerInterface struct {
+	AddShiftStub        func(*gin.Context)
+	addShiftMutex       sync.RWMutex
+	addShiftArgsForCall []struct {
+		arg1 *gin.Context
+	}
 	CreateEmployeeHandlerStub        func(*gin.Context)
 	createEmployeeHandlerMutex       sync.RWMutex
 	createEmployeeHandlerArgsForCall []struct {
@@ -61,6 +66,38 @@ type FakeHandlerInterface struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *FakeHandlerInterface) AddShift(arg1 *gin.Context) {
+	fake.addShiftMutex.Lock()
+	fake.addShiftArgsForCall = append(fake.addShiftArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.AddShiftStub
+	fake.recordInvocation("AddShift", []interface{}{arg1})
+	fake.addShiftMutex.Unlock()
+	if stub != nil {
+		fake.AddShiftStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) AddShiftCallCount() int {
+	fake.addShiftMutex.RLock()
+	defer fake.addShiftMutex.RUnlock()
+	return len(fake.addShiftArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) AddShiftCalls(stub func(*gin.Context)) {
+	fake.addShiftMutex.Lock()
+	defer fake.addShiftMutex.Unlock()
+	fake.AddShiftStub = stub
+}
+
+func (fake *FakeHandlerInterface) AddShiftArgsForCall(i int) *gin.Context {
+	fake.addShiftMutex.RLock()
+	defer fake.addShiftMutex.RUnlock()
+	argsForCall := fake.addShiftArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeHandlerInterface) CreateEmployeeHandler(arg1 *gin.Context) {
@@ -386,6 +423,8 @@ func (fake *FakeHandlerInterface) ValidateTokenArgsForCall(i int) *gin.Context {
 func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.addShiftMutex.RLock()
+	defer fake.addShiftMutex.RUnlock()
 	fake.createEmployeeHandlerMutex.RLock()
 	defer fake.createEmployeeHandlerMutex.RUnlock()
 	fake.deleteByIdHandlerMutex.RLock()

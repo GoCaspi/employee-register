@@ -8,6 +8,20 @@ import (
 )
 
 type FakeServiceInterface struct {
+	AddShiftStub        func(model.Employee, model.Shift) ([]model.Shift, error)
+	addShiftMutex       sync.RWMutex
+	addShiftArgsForCall []struct {
+		arg1 model.Employee
+		arg2 model.Shift
+	}
+	addShiftReturns struct {
+		result1 []model.Shift
+		result2 error
+	}
+	addShiftReturnsOnCall map[int]struct {
+		result1 []model.Shift
+		result2 error
+	}
 	CreateEmployeesStub        func([]model.Employee) (interface{}, error)
 	createEmployeesMutex       sync.RWMutex
 	createEmployeesArgsForCall []struct {
@@ -74,6 +88,71 @@ type FakeServiceInterface struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *FakeServiceInterface) AddShift(arg1 model.Employee, arg2 model.Shift) ([]model.Shift, error) {
+	fake.addShiftMutex.Lock()
+	ret, specificReturn := fake.addShiftReturnsOnCall[len(fake.addShiftArgsForCall)]
+	fake.addShiftArgsForCall = append(fake.addShiftArgsForCall, struct {
+		arg1 model.Employee
+		arg2 model.Shift
+	}{arg1, arg2})
+	stub := fake.AddShiftStub
+	fakeReturns := fake.addShiftReturns
+	fake.recordInvocation("AddShift", []interface{}{arg1, arg2})
+	fake.addShiftMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) AddShiftCallCount() int {
+	fake.addShiftMutex.RLock()
+	defer fake.addShiftMutex.RUnlock()
+	return len(fake.addShiftArgsForCall)
+}
+
+func (fake *FakeServiceInterface) AddShiftCalls(stub func(model.Employee, model.Shift) ([]model.Shift, error)) {
+	fake.addShiftMutex.Lock()
+	defer fake.addShiftMutex.Unlock()
+	fake.AddShiftStub = stub
+}
+
+func (fake *FakeServiceInterface) AddShiftArgsForCall(i int) (model.Employee, model.Shift) {
+	fake.addShiftMutex.RLock()
+	defer fake.addShiftMutex.RUnlock()
+	argsForCall := fake.addShiftArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeServiceInterface) AddShiftReturns(result1 []model.Shift, result2 error) {
+	fake.addShiftMutex.Lock()
+	defer fake.addShiftMutex.Unlock()
+	fake.AddShiftStub = nil
+	fake.addShiftReturns = struct {
+		result1 []model.Shift
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) AddShiftReturnsOnCall(i int, result1 []model.Shift, result2 error) {
+	fake.addShiftMutex.Lock()
+	defer fake.addShiftMutex.Unlock()
+	fake.AddShiftStub = nil
+	if fake.addShiftReturnsOnCall == nil {
+		fake.addShiftReturnsOnCall = make(map[int]struct {
+			result1 []model.Shift
+			result2 error
+		})
+	}
+	fake.addShiftReturnsOnCall[i] = struct {
+		result1 []model.Shift
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeServiceInterface) CreateEmployees(arg1 []model.Employee) (interface{}, error) {
@@ -402,6 +481,8 @@ func (fake *FakeServiceInterface) GetPaginatedEmployeesReturnsOnCall(i int, resu
 func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.addShiftMutex.RLock()
+	defer fake.addShiftMutex.RUnlock()
 	fake.createEmployeesMutex.RLock()
 	defer fake.createEmployeesMutex.RUnlock()
 	fake.deleteEmployeeMutex.RLock()
