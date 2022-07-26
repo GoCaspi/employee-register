@@ -162,3 +162,47 @@ func TestEmployeeService_GetRoster(t *testing.T) {
 	}
 
 }
+
+func TestEmployeeService_AddShift(t *testing.T) {
+	fakeShifts := []model.Shift{
+		model.Shift{Duties: map[string]model.Workload{"Monday": model.Workload{Duty: "Cleaning", Start: time.Time{}, End: time.Time{}}}, Week: 1},
+	}
+
+	empInput := model.Employee{
+		FirstName: "John", LastName: "James", ID: "1", Email: "john.james@mail.com", Auth: model.HashedAuth{}, Department: "fakeDepartment", Shifts: fakeShifts,
+	}
+
+	shiftInput := model.Shift{
+		Duties: map[string]model.Workload{"Monday": model.Workload{Duty: "Cleaning", Start: time.Time{}, End: time.Time{}}}, Week: 2,
+	}
+
+	shiftInputDoubled := model.Shift{
+		Duties: map[string]model.Workload{"Monday": model.Workload{Duty: "Cleaning", Start: time.Time{}, End: time.Time{}}}, Week: 1,
+	}
+
+	expectedErr := errors.New("The shift is already set for that week")
+
+	var tests = []struct {
+		EmpInput   model.Employee
+		ShiftInput model.Shift
+		err        error
+	}{
+		{empInput, shiftInput, nil},
+		{empInput, shiftInputDoubled, expectedErr},
+	}
+
+	for _, tt := range tests {
+		fakeDB := &servicefakes.FakeDatabaseInterface{}
+		fakeDB.UpdateEmpShiftReturns(tt.EmpInput, tt.err)
+		serviceInstance := service.NewEmployeeService(fakeDB)
+		res, err := serviceInstance.AddShift(tt.EmpInput, tt.ShiftInput)
+
+		if tt.err == nil {
+			assert.Equal(t, res, empInput.Shifts)
+			assert.Equal(t, 1, len(res))
+		} else {
+			assert.Equal(t, tt.err.Error(), err.Error())
+		}
+	}
+
+}
