@@ -22,7 +22,7 @@ type ServiceInterface interface {
 	GetPaginatedEmployees(page int, limit int) (model.PaginatedPayload, error)
 	GetEmployeesDepartmentFilter(department string) ([]model.EmployeeReturn, error)
 	AddShift(emp model.Employee, shift model.Shift) ([]model.Shift, error)
-	GetRoster(employees []model.EmployeeReturn, week int) map[string]map[string]model.Workload
+	GetRoster(employees []model.EmployeeReturn, week int) (map[string]map[string]model.Workload, error)
 }
 
 var MyCacheMap = cache.NewCacheMap{}
@@ -449,7 +449,14 @@ func (handler Handler) GetDutyRoster(context *gin.Context) {
 		return
 	}
 
-	roster := handler.ServiceInterface.GetRoster(departmentEmployees, weekInt)
+	roster, err := handler.ServiceInterface.GetRoster(departmentEmployees, weekInt)
+
+	if err != nil {
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
 
 	context.JSON(200, roster)
 }

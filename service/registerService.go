@@ -84,8 +84,8 @@ func (s EmployeeService) AddShift(emp model.Employee, shift model.Shift) ([]mode
 	}
 }
 
-func (s EmployeeService) GetRoster(employees []model.EmployeeReturn, week int) map[string]map[string]model.Workload {
-	var roster map[string]map[string]model.Workload
+func (s EmployeeService) GetRoster(employees []model.EmployeeReturn, week int) (map[string]map[string]model.Workload, error) {
+	var roster map[string]map[string]model.Workload = map[string]map[string]model.Workload{}
 	for _, e := range employees {
 		emp := s.DbService.GetByID(e.ID)
 		for _, s := range emp.Shifts {
@@ -94,5 +94,11 @@ func (s EmployeeService) GetRoster(employees []model.EmployeeReturn, week int) m
 			}
 		}
 	}
-	return roster
+
+	if len(roster) == 0 {
+		emptyRosterErrMsg := "The recieved roster is empty."
+		return roster, errors.New(emptyRosterErrMsg)
+	}
+
+	return roster, nil
 }
