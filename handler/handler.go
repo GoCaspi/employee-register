@@ -22,6 +22,7 @@ type ServiceInterface interface {
 	GetPaginatedEmployees(page int, limit int) (model.PaginatedPayload, error)
 	GetEmployeesDepartmentFilter(department string) ([]model.EmployeeReturn, error)
 	AddShift(emp model.Employee, shift model.Shift) ([]model.Shift, error)
+	GetRoster(employees []model.EmployeeReturn, week int) map[string]map[string]model.Workload
 }
 
 var MyCacheMap = cache.NewCacheMap{}
@@ -412,6 +413,45 @@ func (handler Handler) AddShift(context *gin.Context) {
 
 	context.JSON(200, response)
 
+}
+
+func (handler Handler) GetDutyRoster(context *gin.Context) {
+	department, depOk := context.GetQuery("department")
+	if !depOk {
+		noDepartmentQuery := "No department was specified in the query."
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": noDepartmentQuery,
+		})
+		return
+	}
+	week, weekOk := context.GetQuery("week")
+	weekInt, strConvErr := strconv.Atoi(week)
+	if !weekOk {
+		noDepartmentQuery := "No week was specified in the query."
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": noDepartmentQuery,
+		})
+		return
+	}
+
+	if strConvErr != nil {
+		context.AbortWithStatusJSON(400, gin.H{
+			"errorMessage": strConvErr.Error(),
+		})
+	}
+
+	departmentEmployees, err := handler.ServiceInterface.GetEmployeesDepartmentFilter(department)
+
+	if err != nil {
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+
+	roster := handler.ServiceInterface.GetRoster(departmentEmployees, weekInt)
+
+	context.JSON(200, roster)
 }
 
 /*

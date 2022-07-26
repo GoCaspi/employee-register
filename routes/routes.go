@@ -17,6 +17,7 @@ type HandlerInterface interface {
 	OAuthStarterHandler(context *gin.Context)
 	DepartmentFilter(context *gin.Context)
 	AddShift(context *gin.Context)
+	GetDutyRoster(context *gin.Context)
 }
 
 var Handler HandlerInterface
@@ -36,6 +37,7 @@ func CreateRoutes(group *gin.RouterGroup) {
 	group.GET("/github", Handler.OAuthStarterHandler)
 	group.GET("/filter", Handler.DepartmentFilter)
 	group.POST("/addShift", Handler.AddShift)
+	group.GET("/dutyRoster", Handler.GetDutyRoster)
 
 	group.GET("/authRedirect", Handler.OAuthRedirectHandler)
 
