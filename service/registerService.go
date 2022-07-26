@@ -90,7 +90,7 @@ func (s EmployeeService) GetRoster(employees []model.EmployeeReturn, week int) (
 		emp := s.DbService.GetByID(e.ID)
 		for _, s := range emp.Shifts {
 			if s.Week == week {
-				roster[e.FirstName+" "+e.LastName] = s.Duties
+				roster[e.FirstName+" "+e.LastName+" "+"id:"+" "+e.ID] = s.Duties
 			}
 		}
 	}

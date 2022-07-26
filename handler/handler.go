@@ -344,43 +344,6 @@ func (handler Handler) DepartmentFilter(context *gin.Context) {
 
 }
 
-/*
-func (handler Handler) AddShift(context *gin.Context) {
-
-	id, ok := context.GetQuery("id")
-	if !ok {
-		noQueryError := "No Id was submitted. Please add an id to your query"
-		context.AbortWithStatusJSON(404, gin.H{
-			"errorMessage": noQueryError,
-		})
-		return
-	}
-
-	employee := handler.ServiceInterface.GetEmployeeById(id)
-	// mock shift
-	startInput, _ := time.Parse(time.RFC3339, "2006-01-02T15:04:05Z")
-	endInput, _ := time.Parse(time.RFC3339, "2006-01-02T17:04:05Z")
-	myMon := model.Workload{Duty: "Cleaninig", Start: startInput, End: endInput, Total: endInput.Sub(startInput)}
-
-	m := make(map[string]model.Workload, 5)
-	m["Monday"] = myMon
-	myShift := model.Shift{Duties: m, Week: 1}
-	// end of mocking
-
-	response, err := handler.ServiceInterface.AddShift(employee, myShift)
-	if err != nil {
-		context.AbortWithStatusJSON(404, gin.H{
-			"errorMessage": err.Error(),
-		})
-		return
-	}
-
-	context.JSON(200, response)
-
-}
-
-*/
-
 func (handler Handler) AddShift(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
@@ -427,9 +390,9 @@ func (handler Handler) GetDutyRoster(context *gin.Context) {
 	week, weekOk := context.GetQuery("week")
 	weekInt, strConvErr := strconv.Atoi(week)
 	if !weekOk {
-		noDepartmentQuery := "No week was specified in the query."
+		noWeekQuery := "No week was specified in the query."
 		context.AbortWithStatusJSON(404, gin.H{
-			"errorMessage": noDepartmentQuery,
+			"errorMessage": noWeekQuery,
 		})
 		return
 	}
