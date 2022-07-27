@@ -664,3 +664,18 @@ func TestHandler_DepartmentFilter(t *testing.T) {
 		assert.Equal(t, tt.expectedCode, fakeRecorder.Code)
 	}
 }
+
+/*
+func TestHandler_GetDutyRoster(t *testing.T) {
+	departmentEmployeeReturn := []model.EmployeeReturn{
+		model.EmployeeReturn{ID: "1", FirstName: "Elton", LastName: "Duck", Email: "elton.duck@mail.com",Department: "fakeDepartment"},
+	}
+
+	rosterReturn := map[string]map[string]model.Workload{}
+
+	var tests = []struct{
+
+	}
+}
+
+*/
