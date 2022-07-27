@@ -49,6 +49,11 @@ type FakeHandlerInterface struct {
 	oAuthStarterHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
+	UpdateByIdStub        func(*gin.Context)
+	updateByIdMutex       sync.RWMutex
+	updateByIdArgsForCall []struct {
+		arg1 *gin.Context
+	}
 	ValidateTokenStub        func(*gin.Context)
 	validateTokenMutex       sync.RWMutex
 	validateTokenArgsForCall []struct {
@@ -314,6 +319,38 @@ func (fake *FakeHandlerInterface) OAuthStarterHandlerArgsForCall(i int) *gin.Con
 	return argsForCall.arg1
 }
 
+func (fake *FakeHandlerInterface) UpdateById(arg1 *gin.Context) {
+	fake.updateByIdMutex.Lock()
+	fake.updateByIdArgsForCall = append(fake.updateByIdArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.UpdateByIdStub
+	fake.recordInvocation("UpdateById", []interface{}{arg1})
+	fake.updateByIdMutex.Unlock()
+	if stub != nil {
+		fake.UpdateByIdStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) UpdateByIdCallCount() int {
+	fake.updateByIdMutex.RLock()
+	defer fake.updateByIdMutex.RUnlock()
+	return len(fake.updateByIdArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) UpdateByIdCalls(stub func(*gin.Context)) {
+	fake.updateByIdMutex.Lock()
+	defer fake.updateByIdMutex.Unlock()
+	fake.UpdateByIdStub = stub
+}
+
+func (fake *FakeHandlerInterface) UpdateByIdArgsForCall(i int) *gin.Context {
+	fake.updateByIdMutex.RLock()
+	defer fake.updateByIdMutex.RUnlock()
+	argsForCall := fake.updateByIdArgsForCall[i]
+	return argsForCall.arg1
+}
+
 func (fake *FakeHandlerInterface) ValidateToken(arg1 *gin.Context) {
 	fake.validateTokenMutex.Lock()
 	fake.validateTokenArgsForCall = append(fake.validateTokenArgsForCall, struct {
@@ -365,6 +402,8 @@ func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	defer fake.oAuthRedirectHandlerMutex.RUnlock()
 	fake.oAuthStarterHandlerMutex.RLock()
 	defer fake.oAuthStarterHandlerMutex.RUnlock()
+	fake.updateByIdMutex.RLock()
+	defer fake.updateByIdMutex.RUnlock()
 	fake.validateTokenMutex.RLock()
 	defer fake.validateTokenMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

@@ -8,6 +8,7 @@ import (
 	"example-project/utility"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
 	"strconv"
 
 	//	"go.mongodb.org/mongo-driver/x/mongo/driver/uuid"
@@ -21,7 +22,7 @@ type ServiceInterface interface {
 	GetEmployeeById(id string) model.Employee
 	DeleteEmployee(id string) (interface{}, error)
 	GetPaginatedEmployees(page int, limit int) (model.PaginatedPayload, error)
-	UpdateEmployee(update model.EmployeeReturn) (model.EmployeeReturn, error)
+	UpdateEmployee(update model.EmployeeReturn) (*mongo.UpdateResult, error)
 }
 
 var MyCacheMap = cache.NewCacheMap{}
@@ -325,13 +326,16 @@ func (handler Handler) UpdateById(context *gin.Context) {
 	pathParam, ok := context.Params.Get("id")
 
 	if !ok {
+
 		context.AbortWithStatusJSON(401, "No Id was submitted")
+		return
 	}
 
 	response := handler.ServiceInterface.GetEmployeeById(pathParam)
 
 	if response.ID == "" {
 		context.AbortWithStatusJSON(400, "Employee was not found")
+		return
 	}
 
 	var payLoad model.EmployeeReturn
@@ -350,11 +354,12 @@ func (handler Handler) UpdateById(context *gin.Context) {
 		Email:     payLoad.Email,
 	}
 
-	_, err = handler.ServiceInterface.UpdateEmployee(update)
+	result, err := handler.ServiceInterface.UpdateEmployee(update)
 
 	if err != nil {
 		context.AbortWithStatusJSON(400, err.Error())
+		return
 	}
 
-	context.JSON(200, update)
+	context.JSON(200, result)
 }
