@@ -401,6 +401,7 @@ func (handler Handler) GetDutyRoster(context *gin.Context) {
 		context.AbortWithStatusJSON(400, gin.H{
 			"errorMessage": strConvErr.Error(),
 		})
+		return
 	}
 
 	departmentEmployees, err := handler.ServiceInterface.GetEmployeesDepartmentFilter(department)
