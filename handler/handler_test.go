@@ -735,3 +735,80 @@ func TestHandler_GetDutyRoster(t *testing.T) {
 
 	}
 }
+
+func TestHandler_AddShift(t *testing.T) {
+	jsonPayload := `{
+ "week": 1,
+"duties": {
+"Monday": {
+"duty": "Cleaninig",
+"start": "2006-01-02T15:04:05Z",
+"end": "2006-01-02T17:04:05Z",
+"total": 7200000000000
+}
+}
+}`
+
+	badJsonPayload := `
+ "week": 1,
+"duties": {
+"Monday": {
+"duty": "Cleaninig",
+"start": "2006-01-02T15:04:05Z",
+"end": "2006-01-02T17:04:05Z",
+"total": 7200000000000
+}
+}
+}`
+
+	//	mockEmployee := model.Employee{ID: "1",FirstName: "Anna",LastName: "Pfanne", Email: "anna.pfanne@mail.com"}
+
+	mockShiftArr := []model.Shift{}
+
+	var tests = []struct {
+		noId               bool
+		Payload            string
+		expectedCode       int
+		bindJsonErr        bool
+		addShiftServiceErr bool
+	}{
+		{true, jsonPayload, 404, false, false},
+		{false, badJsonPayload, 400, true, false},
+		{false, jsonPayload, 404, false, true},
+		{false, jsonPayload, 200, false, false},
+	}
+
+	for _, tt := range tests {
+		fakeRecorder := httptest.NewRecorder()
+		fakeContext, _ := gin.CreateTestContext(fakeRecorder)
+		fakeService := &handlerfakes.FakeServiceInterface{}
+		handlerInstance := handler.NewHandler(fakeService)
+		var mockShift model.Shift
+		json.Unmarshal([]byte(tt.Payload), &mockShift)
+		body := bytes.NewBufferString(tt.Payload)
+
+		if tt.noId {
+			fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/addShift", body)
+			handlerInstance.AddShift(fakeContext)
+			assert.Equal(t, tt.expectedCode, fakeRecorder.Code)
+		}
+
+		if tt.bindJsonErr {
+			fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/addShift?id=1", body)
+			handlerInstance.AddShift(fakeContext)
+			assert.Equal(t, tt.expectedCode, fakeRecorder.Code)
+		}
+
+		if tt.addShiftServiceErr {
+			fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/addShift?id=1", body)
+			fakeService.AddShiftReturns(mockShiftArr, errors.New("fakeServiceError"))
+			handlerInstance.AddShift(fakeContext)
+			assert.Equal(t, tt.expectedCode, fakeRecorder.Code)
+		}
+
+		fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/addShift?id=1", body)
+		fakeService.AddShiftReturns(mockShiftArr, nil)
+		handlerInstance.AddShift(fakeContext)
+		assert.Equal(t, tt.expectedCode, fakeRecorder.Code)
+	}
+}
