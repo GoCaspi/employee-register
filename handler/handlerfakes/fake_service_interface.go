@@ -4,6 +4,7 @@ package handlerfakes
 import (
 	"example-project/handler"
 	"example-project/model"
+	"example-project/service"
 	"sync"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -60,6 +61,11 @@ type FakeServiceInterface struct {
 	getPaginatedEmployeesReturnsOnCall map[int]struct {
 		result1 model.PaginatedPayload
 		result2 error
+	}
+	ImplementrightManagementStub        func(service.EmployeeService)
+	implementrightManagementMutex       sync.RWMutex
+	implementrightManagementArgsForCall []struct {
+		arg1 service.EmployeeService
 	}
 	UpdateEmployeeStub        func(model.EmployeeReturn) (*mongo.UpdateResult, error)
 	updateEmployeeMutex       sync.RWMutex
@@ -337,6 +343,38 @@ func (fake *FakeServiceInterface) GetPaginatedEmployeesReturnsOnCall(i int, resu
 	}{result1, result2}
 }
 
+func (fake *FakeServiceInterface) ImplementrightManagement(arg1 service.EmployeeService) {
+	fake.implementrightManagementMutex.Lock()
+	fake.implementrightManagementArgsForCall = append(fake.implementrightManagementArgsForCall, struct {
+		arg1 service.EmployeeService
+	}{arg1})
+	stub := fake.ImplementrightManagementStub
+	fake.recordInvocation("ImplementrightManagement", []interface{}{arg1})
+	fake.implementrightManagementMutex.Unlock()
+	if stub != nil {
+		fake.ImplementrightManagementStub(arg1)
+	}
+}
+
+func (fake *FakeServiceInterface) ImplementrightManagementCallCount() int {
+	fake.implementrightManagementMutex.RLock()
+	defer fake.implementrightManagementMutex.RUnlock()
+	return len(fake.implementrightManagementArgsForCall)
+}
+
+func (fake *FakeServiceInterface) ImplementrightManagementCalls(stub func(service.EmployeeService)) {
+	fake.implementrightManagementMutex.Lock()
+	defer fake.implementrightManagementMutex.Unlock()
+	fake.ImplementrightManagementStub = stub
+}
+
+func (fake *FakeServiceInterface) ImplementrightManagementArgsForCall(i int) service.EmployeeService {
+	fake.implementrightManagementMutex.RLock()
+	defer fake.implementrightManagementMutex.RUnlock()
+	argsForCall := fake.implementrightManagementArgsForCall[i]
+	return argsForCall.arg1
+}
+
 func (fake *FakeServiceInterface) UpdateEmployee(arg1 model.EmployeeReturn) (*mongo.UpdateResult, error) {
 	fake.updateEmployeeMutex.Lock()
 	ret, specificReturn := fake.updateEmployeeReturnsOnCall[len(fake.updateEmployeeArgsForCall)]
@@ -412,6 +450,8 @@ func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	defer fake.getEmployeeByIdMutex.RUnlock()
 	fake.getPaginatedEmployeesMutex.RLock()
 	defer fake.getPaginatedEmployeesMutex.RUnlock()
+	fake.implementrightManagementMutex.RLock()
+	defer fake.implementrightManagementMutex.RUnlock()
 	fake.updateEmployeeMutex.RLock()
 	defer fake.updateEmployeeMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

@@ -20,6 +20,7 @@ type MongoDBInterface interface {
 	CountDocuments(ctx context.Context, filter interface{}, opts ...*options.CountOptions) (int64, error)
 	Find(ctx context.Context, filter interface{}, opts ...*options.FindOptions) (cur *mongo.Cursor, err error)
 	UpdateOne(ctx context.Context, filter interface{}, update interface{}, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error)
+	//Implementrightsmanagement(ctx context.Context, filter interface{}, update interface{}, opts ...*options.) (*mongo.UpdateResult, error)
 }
 
 type Client struct {

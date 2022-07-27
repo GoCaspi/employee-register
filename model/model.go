@@ -6,6 +6,7 @@ type Employee struct {
 	LastName  string     `json:"last_name"`
 	Email     string     `json:"email"`
 	Auth      HashedAuth `json:"auth" bson:"auth"`
+	Admin     string     `json:"admin"`
 }
 type EmployeePayload struct {
 	ID        string `json:"id"`
@@ -13,6 +14,7 @@ type EmployeePayload struct {
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
 	Auth      Auth   `json:"auth" bson:"auth"`
+	Admin     string `json:"admin"`
 }
 
 type Auth struct {
@@ -38,6 +40,7 @@ type EmployeeReturn struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
+	Admin     string `json:"admin"`
 }
 
 type PaginatedPayload struct {

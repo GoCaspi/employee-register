@@ -29,6 +29,11 @@ type FakeHandlerInterface struct {
 	getEmployeeHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
+	ImplementrightManagementStub        func(*gin.Context)
+	implementrightManagementMutex       sync.RWMutex
+	implementrightManagementArgsForCall []struct {
+		arg1 *gin.Context
+	}
 	LoginStub        func(*gin.Context)
 	loginMutex       sync.RWMutex
 	loginArgsForCall []struct {
@@ -188,6 +193,38 @@ func (fake *FakeHandlerInterface) GetEmployeeHandlerArgsForCall(i int) *gin.Cont
 	fake.getEmployeeHandlerMutex.RLock()
 	defer fake.getEmployeeHandlerMutex.RUnlock()
 	argsForCall := fake.getEmployeeHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeHandlerInterface) ImplementrightManagement(arg1 *gin.Context) {
+	fake.implementrightManagementMutex.Lock()
+	fake.implementrightManagementArgsForCall = append(fake.implementrightManagementArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.ImplementrightManagementStub
+	fake.recordInvocation("ImplementrightManagement", []interface{}{arg1})
+	fake.implementrightManagementMutex.Unlock()
+	if stub != nil {
+		fake.ImplementrightManagementStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) ImplementrightManagementCallCount() int {
+	fake.implementrightManagementMutex.RLock()
+	defer fake.implementrightManagementMutex.RUnlock()
+	return len(fake.implementrightManagementArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) ImplementrightManagementCalls(stub func(*gin.Context)) {
+	fake.implementrightManagementMutex.Lock()
+	defer fake.implementrightManagementMutex.Unlock()
+	fake.ImplementrightManagementStub = stub
+}
+
+func (fake *FakeHandlerInterface) ImplementrightManagementArgsForCall(i int) *gin.Context {
+	fake.implementrightManagementMutex.RLock()
+	defer fake.implementrightManagementMutex.RUnlock()
+	argsForCall := fake.implementrightManagementArgsForCall[i]
 	return argsForCall.arg1
 }
 
@@ -394,6 +431,8 @@ func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	defer fake.getAllEmployeesHandlerMutex.RUnlock()
 	fake.getEmployeeHandlerMutex.RLock()
 	defer fake.getEmployeeHandlerMutex.RUnlock()
+	fake.implementrightManagementMutex.RLock()
+	defer fake.implementrightManagementMutex.RUnlock()
 	fake.loginMutex.RLock()
 	defer fake.loginMutex.RUnlock()
 	fake.logoutMutex.RLock()

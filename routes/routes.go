@@ -16,6 +16,7 @@ type HandlerInterface interface {
 	OAuthRedirectHandler(context *gin.Context)
 	OAuthStarterHandler(context *gin.Context)
 	UpdateById(context *gin.Context)
+	ImplementrightManagement(context *gin.Context)
 }
 
 var Handler HandlerInterface
@@ -40,8 +41,9 @@ func CreateRoutes(group *gin.RouterGroup) {
 
 	route := group.Group("/employee")
 	route.Use(Handler.ValidateToken)
-	route.GET("/:id/get", Handler.GetEmployeeHandler)
-	route.POST("/create", Handler.CreateEmployeeHandler)
-	route.DELETE("/:id/delete", Handler.DeleteByIdHandler)
-	route.GET("/get", Handler.GetAllEmployeesHandler)
+	route.GET("/:id/get", Handler.ImplementrightManagement, Handler.GetEmployeeHandler)
+	route.POST("/create", Handler.ImplementrightManagement, Handler.CreateEmployeeHandler)
+	route.DELETE("/:id/delete", Handler.ImplementrightManagement, Handler.DeleteByIdHandler)
+	route.GET("/get", Handler.ImplementrightManagement, Handler.GetAllEmployeesHandler)
+
 }
