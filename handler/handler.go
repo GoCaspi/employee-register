@@ -8,8 +8,8 @@ import (
 	"example-project/utility"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
 	"strconv"
-
 	//	"go.mongodb.org/mongo-driver/x/mongo/driver/uuid"
 	"github.com/google/uuid"
 	"net/http"
@@ -21,6 +21,10 @@ type ServiceInterface interface {
 	GetEmployeeById(id string) model.Employee
 	DeleteEmployee(id string) (interface{}, error)
 	GetPaginatedEmployees(page int, limit int) (model.PaginatedPayload, error)
+	UpdateEmployee(update model.EmployeeReturn) (*mongo.UpdateResult, error)
+	GetEmployeesDepartmentFilter(department string) ([]model.EmployeeReturn, error)
+	AddShift(emp model.Employee, shift model.Shift) ([]model.Shift, error)
+	GetRoster(employees []model.EmployeeReturn, week int) (map[string]map[string]model.Workload, error)
 }
 
 var MyCacheMap = cache.NewCacheMap{}
@@ -319,3 +323,165 @@ func getGithubData(accessToken string) string {
 }
 
 */
+func (handler Handler) DepartmentFilter(context *gin.Context) {
+	department, depOk := context.GetQuery("department")
+	if !depOk {
+		noQueryError := "No department was given in the query parameter!"
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": noQueryError,
+		})
+		return
+	}
+
+	response, err := handler.ServiceInterface.GetEmployeesDepartmentFilter(department)
+	if err != nil {
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+
+	context.JSON(200, response)
+	return
+
+}
+
+func (handler Handler) AddShift(context *gin.Context) {
+
+	id, ok := context.GetQuery("id")
+	if !ok {
+		noQueryError := "No Id was submitted. Please add an id to your query"
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": noQueryError,
+		})
+		return
+	}
+
+	var shiftPayload model.Shift
+	err := context.ShouldBindJSON(&shiftPayload)
+	if err != nil {
+		context.AbortWithStatusJSON(400, gin.H{
+			"errorMessage": "Bad payload",
+		})
+		return
+	}
+
+	employee := handler.ServiceInterface.GetEmployeeById(id)
+
+	response, err := handler.ServiceInterface.AddShift(employee, shiftPayload)
+	if err != nil {
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+
+	context.JSON(200, response)
+
+}
+
+func (handler Handler) GetDutyRoster(context *gin.Context) {
+	department, depOk := context.GetQuery("department")
+	if !depOk {
+		noDepartmentQuery := "No department was specified in the query."
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": noDepartmentQuery,
+		})
+		return
+	}
+	week, weekOk := context.GetQuery("week")
+	weekInt, strConvErr := strconv.Atoi(week)
+	if !weekOk {
+		noWeekQuery := "No week was specified in the query."
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": noWeekQuery,
+		})
+		return
+	}
+
+	if strConvErr != nil {
+		context.AbortWithStatusJSON(400, gin.H{
+			"errorMessage": strConvErr.Error(),
+		})
+		return
+	}
+
+	departmentEmployees, err := handler.ServiceInterface.GetEmployeesDepartmentFilter(department)
+
+	if err != nil {
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+
+	roster, err := handler.ServiceInterface.GetRoster(departmentEmployees, weekInt)
+
+	if err != nil {
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+
+	context.JSON(200, roster)
+}
+
+/*
+[
+{
+"week": 1,
+"duties": {
+"Monday": {
+"duty": "Cleaninig",
+"start": "2006-01-02T15:04:05Z",
+"end": "2006-01-02T17:04:05Z",
+"total": 7200000000000
+}
+}
+}
+]
+
+*/
+
+func (handler Handler) UpdateById(context *gin.Context) {
+	pathParam, ok := context.Params.Get("id")
+
+	if !ok {
+
+		context.AbortWithStatusJSON(401, "No Id was submitted")
+		return
+	}
+
+	response := handler.ServiceInterface.GetEmployeeById(pathParam)
+
+	if response.ID == "" {
+		context.AbortWithStatusJSON(400, "Employee was not found")
+		return
+	}
+
+	var payLoad model.EmployeeReturn
+	err := context.ShouldBindJSON(&payLoad)
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": "invalid payload",
+		})
+		return
+	}
+
+	update := model.EmployeeReturn{
+		ID:        response.ID,
+		FirstName: payLoad.FirstName,
+		LastName:  payLoad.LastName,
+		Email:     payLoad.Email,
+	}
+
+	result, err := handler.ServiceInterface.UpdateEmployee(update)
+
+	if err != nil {
+		context.AbortWithStatusJSON(400, err.Error())
+		return
+	}
+
+	context.JSON(200, result)
+}

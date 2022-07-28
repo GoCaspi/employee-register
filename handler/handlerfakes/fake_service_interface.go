@@ -5,9 +5,25 @@ import (
 	"example-project/handler"
 	"example-project/model"
 	"sync"
+
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type FakeServiceInterface struct {
+	AddShiftStub        func(model.Employee, model.Shift) ([]model.Shift, error)
+	addShiftMutex       sync.RWMutex
+	addShiftArgsForCall []struct {
+		arg1 model.Employee
+		arg2 model.Shift
+	}
+	addShiftReturns struct {
+		result1 []model.Shift
+		result2 error
+	}
+	addShiftReturnsOnCall map[int]struct {
+		result1 []model.Shift
+		result2 error
+	}
 	CreateEmployeesStub        func([]model.Employee) (interface{}, error)
 	createEmployeesMutex       sync.RWMutex
 	createEmployeesArgsForCall []struct {
@@ -45,6 +61,19 @@ type FakeServiceInterface struct {
 	getEmployeeByIdReturnsOnCall map[int]struct {
 		result1 model.Employee
 	}
+	GetEmployeesDepartmentFilterStub        func(string) ([]model.EmployeeReturn, error)
+	getEmployeesDepartmentFilterMutex       sync.RWMutex
+	getEmployeesDepartmentFilterArgsForCall []struct {
+		arg1 string
+	}
+	getEmployeesDepartmentFilterReturns struct {
+		result1 []model.EmployeeReturn
+		result2 error
+	}
+	getEmployeesDepartmentFilterReturnsOnCall map[int]struct {
+		result1 []model.EmployeeReturn
+		result2 error
+	}
 	GetPaginatedEmployeesStub        func(int, int) (model.PaginatedPayload, error)
 	getPaginatedEmployeesMutex       sync.RWMutex
 	getPaginatedEmployeesArgsForCall []struct {
@@ -59,8 +88,100 @@ type FakeServiceInterface struct {
 		result1 model.PaginatedPayload
 		result2 error
 	}
+	UpdateEmployeeStub        func(model.EmployeeReturn) (*mongo.UpdateResult, error)
+	updateEmployeeMutex       sync.RWMutex
+	updateEmployeeArgsForCall []struct {
+		arg1 model.EmployeeReturn
+	}
+	updateEmployeeReturns struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}
+	updateEmployeeReturnsOnCall map[int]struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}
+	GetRosterStub        func([]model.EmployeeReturn, int) (map[string]map[string]model.Workload, error)
+	getRosterMutex       sync.RWMutex
+	getRosterArgsForCall []struct {
+		arg1 []model.EmployeeReturn
+		arg2 int
+	}
+	getRosterReturns struct {
+		result1 map[string]map[string]model.Workload
+		result2 error
+	}
+	getRosterReturnsOnCall map[int]struct {
+		result1 map[string]map[string]model.Workload
+		result2 error
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *FakeServiceInterface) AddShift(arg1 model.Employee, arg2 model.Shift) ([]model.Shift, error) {
+	fake.addShiftMutex.Lock()
+	ret, specificReturn := fake.addShiftReturnsOnCall[len(fake.addShiftArgsForCall)]
+	fake.addShiftArgsForCall = append(fake.addShiftArgsForCall, struct {
+		arg1 model.Employee
+		arg2 model.Shift
+	}{arg1, arg2})
+	stub := fake.AddShiftStub
+	fakeReturns := fake.addShiftReturns
+	fake.recordInvocation("AddShift", []interface{}{arg1, arg2})
+	fake.addShiftMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) AddShiftCallCount() int {
+	fake.addShiftMutex.RLock()
+	defer fake.addShiftMutex.RUnlock()
+	return len(fake.addShiftArgsForCall)
+}
+
+func (fake *FakeServiceInterface) AddShiftCalls(stub func(model.Employee, model.Shift) ([]model.Shift, error)) {
+	fake.addShiftMutex.Lock()
+	defer fake.addShiftMutex.Unlock()
+	fake.AddShiftStub = stub
+}
+
+func (fake *FakeServiceInterface) AddShiftArgsForCall(i int) (model.Employee, model.Shift) {
+	fake.addShiftMutex.RLock()
+	defer fake.addShiftMutex.RUnlock()
+	argsForCall := fake.addShiftArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeServiceInterface) AddShiftReturns(result1 []model.Shift, result2 error) {
+	fake.addShiftMutex.Lock()
+	defer fake.addShiftMutex.Unlock()
+	fake.AddShiftStub = nil
+	fake.addShiftReturns = struct {
+		result1 []model.Shift
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) AddShiftReturnsOnCall(i int, result1 []model.Shift, result2 error) {
+	fake.addShiftMutex.Lock()
+	defer fake.addShiftMutex.Unlock()
+	fake.AddShiftStub = nil
+	if fake.addShiftReturnsOnCall == nil {
+		fake.addShiftReturnsOnCall = make(map[int]struct {
+			result1 []model.Shift
+			result2 error
+		})
+	}
+	fake.addShiftReturnsOnCall[i] = struct {
+		result1 []model.Shift
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeServiceInterface) CreateEmployees(arg1 []model.Employee) (interface{}, error) {
@@ -257,6 +378,70 @@ func (fake *FakeServiceInterface) GetEmployeeByIdReturnsOnCall(i int, result1 mo
 	}{result1}
 }
 
+func (fake *FakeServiceInterface) GetEmployeesDepartmentFilter(arg1 string) ([]model.EmployeeReturn, error) {
+	fake.getEmployeesDepartmentFilterMutex.Lock()
+	ret, specificReturn := fake.getEmployeesDepartmentFilterReturnsOnCall[len(fake.getEmployeesDepartmentFilterArgsForCall)]
+	fake.getEmployeesDepartmentFilterArgsForCall = append(fake.getEmployeesDepartmentFilterArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.GetEmployeesDepartmentFilterStub
+	fakeReturns := fake.getEmployeesDepartmentFilterReturns
+	fake.recordInvocation("GetEmployeesDepartmentFilter", []interface{}{arg1})
+	fake.getEmployeesDepartmentFilterMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) GetEmployeesDepartmentFilterCallCount() int {
+	fake.getEmployeesDepartmentFilterMutex.RLock()
+	defer fake.getEmployeesDepartmentFilterMutex.RUnlock()
+	return len(fake.getEmployeesDepartmentFilterArgsForCall)
+}
+
+func (fake *FakeServiceInterface) GetEmployeesDepartmentFilterCalls(stub func(string) ([]model.EmployeeReturn, error)) {
+	fake.getEmployeesDepartmentFilterMutex.Lock()
+	defer fake.getEmployeesDepartmentFilterMutex.Unlock()
+	fake.GetEmployeesDepartmentFilterStub = stub
+}
+
+func (fake *FakeServiceInterface) GetEmployeesDepartmentFilterArgsForCall(i int) string {
+	fake.getEmployeesDepartmentFilterMutex.RLock()
+	defer fake.getEmployeesDepartmentFilterMutex.RUnlock()
+	argsForCall := fake.getEmployeesDepartmentFilterArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeServiceInterface) GetEmployeesDepartmentFilterReturns(result1 []model.EmployeeReturn, result2 error) {
+	fake.getEmployeesDepartmentFilterMutex.Lock()
+	defer fake.getEmployeesDepartmentFilterMutex.Unlock()
+	fake.GetEmployeesDepartmentFilterStub = nil
+	fake.getEmployeesDepartmentFilterReturns = struct {
+		result1 []model.EmployeeReturn
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) GetEmployeesDepartmentFilterReturnsOnCall(i int, result1 []model.EmployeeReturn, result2 error) {
+	fake.getEmployeesDepartmentFilterMutex.Lock()
+	defer fake.getEmployeesDepartmentFilterMutex.Unlock()
+	fake.GetEmployeesDepartmentFilterStub = nil
+	if fake.getEmployeesDepartmentFilterReturnsOnCall == nil {
+		fake.getEmployeesDepartmentFilterReturnsOnCall = make(map[int]struct {
+			result1 []model.EmployeeReturn
+			result2 error
+		})
+	}
+	fake.getEmployeesDepartmentFilterReturnsOnCall[i] = struct {
+		result1 []model.EmployeeReturn
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeServiceInterface) GetPaginatedEmployees(arg1 int, arg2 int) (model.PaginatedPayload, error) {
 	fake.getPaginatedEmployeesMutex.Lock()
 	ret, specificReturn := fake.getPaginatedEmployeesReturnsOnCall[len(fake.getPaginatedEmployeesArgsForCall)]
@@ -322,17 +507,159 @@ func (fake *FakeServiceInterface) GetPaginatedEmployeesReturnsOnCall(i int, resu
 	}{result1, result2}
 }
 
+func (fake *FakeServiceInterface) UpdateEmployee(arg1 model.EmployeeReturn) (*mongo.UpdateResult, error) {
+	fake.updateEmployeeMutex.Lock()
+	ret, specificReturn := fake.updateEmployeeReturnsOnCall[len(fake.updateEmployeeArgsForCall)]
+	fake.updateEmployeeArgsForCall = append(fake.updateEmployeeArgsForCall, struct {
+		arg1 model.EmployeeReturn
+	}{arg1})
+	stub := fake.UpdateEmployeeStub
+	fakeReturns := fake.updateEmployeeReturns
+	fake.recordInvocation("UpdateEmployee", []interface{}{arg1})
+	fake.updateEmployeeMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) UpdateEmployeeCallCount() int {
+	fake.updateEmployeeMutex.RLock()
+	defer fake.updateEmployeeMutex.RUnlock()
+	return len(fake.updateEmployeeArgsForCall)
+}
+
+func (fake *FakeServiceInterface) UpdateEmployeeCalls(stub func(model.EmployeeReturn) (*mongo.UpdateResult, error)) {
+	fake.updateEmployeeMutex.Lock()
+	defer fake.updateEmployeeMutex.Unlock()
+	fake.UpdateEmployeeStub = stub
+}
+
+func (fake *FakeServiceInterface) UpdateEmployeeArgsForCall(i int) model.EmployeeReturn {
+	fake.updateEmployeeMutex.RLock()
+	defer fake.updateEmployeeMutex.RUnlock()
+	argsForCall := fake.updateEmployeeArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeServiceInterface) UpdateEmployeeReturns(result1 *mongo.UpdateResult, result2 error) {
+	fake.updateEmployeeMutex.Lock()
+	defer fake.updateEmployeeMutex.Unlock()
+	fake.UpdateEmployeeStub = nil
+	fake.updateEmployeeReturns = struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) UpdateEmployeeReturnsOnCall(i int, result1 *mongo.UpdateResult, result2 error) {
+	fake.updateEmployeeMutex.Lock()
+	defer fake.updateEmployeeMutex.Unlock()
+	fake.UpdateEmployeeStub = nil
+	if fake.updateEmployeeReturnsOnCall == nil {
+		fake.updateEmployeeReturnsOnCall = make(map[int]struct {
+			result1 *mongo.UpdateResult
+			result2 error
+		})
+	}
+	fake.updateEmployeeReturnsOnCall[i] = struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) GetRoster(arg1 []model.EmployeeReturn, arg2 int) (map[string]map[string]model.Workload, error) {
+	var arg1Copy []model.EmployeeReturn
+	if arg1 != nil {
+		arg1Copy = make([]model.EmployeeReturn, len(arg1))
+		copy(arg1Copy, arg1)
+	}
+	fake.getRosterMutex.Lock()
+	ret, specificReturn := fake.getRosterReturnsOnCall[len(fake.getRosterArgsForCall)]
+	fake.getRosterArgsForCall = append(fake.getRosterArgsForCall, struct {
+		arg1 []model.EmployeeReturn
+		arg2 int
+	}{arg1Copy, arg2})
+	stub := fake.GetRosterStub
+	fakeReturns := fake.getRosterReturns
+	fake.recordInvocation("GetRoster", []interface{}{arg1Copy, arg2})
+	fake.getRosterMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) GetRosterCallCount() int {
+	fake.getRosterMutex.RLock()
+	defer fake.getRosterMutex.RUnlock()
+	return len(fake.getRosterArgsForCall)
+}
+
+func (fake *FakeServiceInterface) GetRosterCalls(stub func([]model.EmployeeReturn, int) (map[string]map[string]model.Workload, error)) {
+	fake.getRosterMutex.Lock()
+	defer fake.getRosterMutex.Unlock()
+	fake.GetRosterStub = stub
+}
+
+func (fake *FakeServiceInterface) GetRosterArgsForCall(i int) ([]model.EmployeeReturn, int) {
+	fake.getRosterMutex.RLock()
+	defer fake.getRosterMutex.RUnlock()
+	argsForCall := fake.getRosterArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeServiceInterface) GetRosterReturns(result1 map[string]map[string]model.Workload, result2 error) {
+	fake.getRosterMutex.Lock()
+	defer fake.getRosterMutex.Unlock()
+	fake.GetRosterStub = nil
+	fake.getRosterReturns = struct {
+		result1 map[string]map[string]model.Workload
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) GetRosterReturnsOnCall(i int, result1 map[string]map[string]model.Workload, result2 error) {
+	fake.getRosterMutex.Lock()
+	defer fake.getRosterMutex.Unlock()
+	fake.GetRosterStub = nil
+	if fake.getRosterReturnsOnCall == nil {
+		fake.getRosterReturnsOnCall = make(map[int]struct {
+			result1 map[string]map[string]model.Workload
+			result2 error
+		})
+	}
+	fake.getRosterReturnsOnCall[i] = struct {
+		result1 map[string]map[string]model.Workload
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.addShiftMutex.RLock()
+	defer fake.addShiftMutex.RUnlock()
 	fake.createEmployeesMutex.RLock()
 	defer fake.createEmployeesMutex.RUnlock()
 	fake.deleteEmployeeMutex.RLock()
 	defer fake.deleteEmployeeMutex.RUnlock()
 	fake.getEmployeeByIdMutex.RLock()
 	defer fake.getEmployeeByIdMutex.RUnlock()
+	fake.getEmployeesDepartmentFilterMutex.RLock()
+	defer fake.getEmployeesDepartmentFilterMutex.RUnlock()
 	fake.getPaginatedEmployeesMutex.RLock()
 	defer fake.getPaginatedEmployeesMutex.RUnlock()
+	fake.updateEmployeeMutex.RLock()
+	defer fake.updateEmployeeMutex.RUnlock()
+	fake.getRosterMutex.RLock()
+	defer fake.getRosterMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

@@ -5,6 +5,8 @@ import (
 	"example-project/model"
 	"example-project/service"
 	"sync"
+
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type FakeDatabaseInterface struct {
@@ -32,6 +34,19 @@ type FakeDatabaseInterface struct {
 	getByIDReturnsOnCall map[int]struct {
 		result1 model.Employee
 	}
+	GetEmployeesByDepartmentStub        func(string) ([]model.EmployeeReturn, error)
+	getEmployeesByDepartmentMutex       sync.RWMutex
+	getEmployeesByDepartmentArgsForCall []struct {
+		arg1 string
+	}
+	getEmployeesByDepartmentReturns struct {
+		result1 []model.EmployeeReturn
+		result2 error
+	}
+	getEmployeesByDepartmentReturnsOnCall map[int]struct {
+		result1 []model.EmployeeReturn
+		result2 error
+	}
 	GetPaginatedStub        func(int, int) (model.PaginatedPayload, error)
 	getPaginatedMutex       sync.RWMutex
 	getPaginatedArgsForCall []struct {
@@ -44,6 +59,33 @@ type FakeDatabaseInterface struct {
 	}
 	getPaginatedReturnsOnCall map[int]struct {
 		result1 model.PaginatedPayload
+		result2 error
+	}
+	UpdateEmpStub        func(model.EmployeeReturn) (*mongo.UpdateResult, error)
+	updateEmpMutex       sync.RWMutex
+	updateEmpArgsForCall []struct {
+		arg1 model.EmployeeReturn
+	}
+	updateEmpReturns struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}
+	updateEmpReturnsOnCall map[int]struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}
+	UpdateEmpShiftStub        func(model.Shift, string) (model.Employee, error)
+	updateEmpShiftMutex       sync.RWMutex
+	updateEmpShiftArgsForCall []struct {
+		arg1 model.Shift
+		arg2 string
+	}
+	updateEmpShiftReturns struct {
+		result1 model.Employee
+		result2 error
+	}
+	updateEmpShiftReturnsOnCall map[int]struct {
+		result1 model.Employee
 		result2 error
 	}
 	UpdateManyStub        func([]interface{}) (interface{}, error)
@@ -188,6 +230,70 @@ func (fake *FakeDatabaseInterface) GetByIDReturnsOnCall(i int, result1 model.Emp
 	}{result1}
 }
 
+func (fake *FakeDatabaseInterface) GetEmployeesByDepartment(arg1 string) ([]model.EmployeeReturn, error) {
+	fake.getEmployeesByDepartmentMutex.Lock()
+	ret, specificReturn := fake.getEmployeesByDepartmentReturnsOnCall[len(fake.getEmployeesByDepartmentArgsForCall)]
+	fake.getEmployeesByDepartmentArgsForCall = append(fake.getEmployeesByDepartmentArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.GetEmployeesByDepartmentStub
+	fakeReturns := fake.getEmployeesByDepartmentReturns
+	fake.recordInvocation("GetEmployeesByDepartment", []interface{}{arg1})
+	fake.getEmployeesByDepartmentMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeDatabaseInterface) GetEmployeesByDepartmentCallCount() int {
+	fake.getEmployeesByDepartmentMutex.RLock()
+	defer fake.getEmployeesByDepartmentMutex.RUnlock()
+	return len(fake.getEmployeesByDepartmentArgsForCall)
+}
+
+func (fake *FakeDatabaseInterface) GetEmployeesByDepartmentCalls(stub func(string) ([]model.EmployeeReturn, error)) {
+	fake.getEmployeesByDepartmentMutex.Lock()
+	defer fake.getEmployeesByDepartmentMutex.Unlock()
+	fake.GetEmployeesByDepartmentStub = stub
+}
+
+func (fake *FakeDatabaseInterface) GetEmployeesByDepartmentArgsForCall(i int) string {
+	fake.getEmployeesByDepartmentMutex.RLock()
+	defer fake.getEmployeesByDepartmentMutex.RUnlock()
+	argsForCall := fake.getEmployeesByDepartmentArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeDatabaseInterface) GetEmployeesByDepartmentReturns(result1 []model.EmployeeReturn, result2 error) {
+	fake.getEmployeesByDepartmentMutex.Lock()
+	defer fake.getEmployeesByDepartmentMutex.Unlock()
+	fake.GetEmployeesByDepartmentStub = nil
+	fake.getEmployeesByDepartmentReturns = struct {
+		result1 []model.EmployeeReturn
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDatabaseInterface) GetEmployeesByDepartmentReturnsOnCall(i int, result1 []model.EmployeeReturn, result2 error) {
+	fake.getEmployeesByDepartmentMutex.Lock()
+	defer fake.getEmployeesByDepartmentMutex.Unlock()
+	fake.GetEmployeesByDepartmentStub = nil
+	if fake.getEmployeesByDepartmentReturnsOnCall == nil {
+		fake.getEmployeesByDepartmentReturnsOnCall = make(map[int]struct {
+			result1 []model.EmployeeReturn
+			result2 error
+		})
+	}
+	fake.getEmployeesByDepartmentReturnsOnCall[i] = struct {
+		result1 []model.EmployeeReturn
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeDatabaseInterface) GetPaginated(arg1 int, arg2 int) (model.PaginatedPayload, error) {
 	fake.getPaginatedMutex.Lock()
 	ret, specificReturn := fake.getPaginatedReturnsOnCall[len(fake.getPaginatedArgsForCall)]
@@ -249,6 +355,135 @@ func (fake *FakeDatabaseInterface) GetPaginatedReturnsOnCall(i int, result1 mode
 	}
 	fake.getPaginatedReturnsOnCall[i] = struct {
 		result1 model.PaginatedPayload
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDatabaseInterface) UpdateEmp(arg1 model.EmployeeReturn) (*mongo.UpdateResult, error) {
+	fake.updateEmpMutex.Lock()
+	ret, specificReturn := fake.updateEmpReturnsOnCall[len(fake.updateEmpArgsForCall)]
+	fake.updateEmpArgsForCall = append(fake.updateEmpArgsForCall, struct {
+		arg1 model.EmployeeReturn
+	}{arg1})
+	stub := fake.UpdateEmpStub
+	fakeReturns := fake.updateEmpReturns
+	fake.recordInvocation("UpdateEmp", []interface{}{arg1})
+	fake.updateEmpMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeDatabaseInterface) UpdateEmpCallCount() int {
+	fake.updateEmpMutex.RLock()
+	defer fake.updateEmpMutex.RUnlock()
+	return len(fake.updateEmpArgsForCall)
+}
+
+func (fake *FakeDatabaseInterface) UpdateEmpCalls(stub func(model.EmployeeReturn) (*mongo.UpdateResult, error)) {
+	fake.updateEmpMutex.Lock()
+	defer fake.updateEmpMutex.Unlock()
+	fake.UpdateEmpStub = stub
+}
+
+func (fake *FakeDatabaseInterface) UpdateEmpArgsForCall(i int) model.EmployeeReturn {
+	fake.updateEmpMutex.RLock()
+	defer fake.updateEmpMutex.RUnlock()
+	argsForCall := fake.updateEmpArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeDatabaseInterface) UpdateEmpReturns(result1 *mongo.UpdateResult, result2 error) {
+	fake.updateEmpMutex.Lock()
+	defer fake.updateEmpMutex.Unlock()
+	fake.UpdateEmpStub = nil
+	fake.updateEmpReturns = struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDatabaseInterface) UpdateEmpReturnsOnCall(i int, result1 *mongo.UpdateResult, result2 error) {
+	fake.updateEmpMutex.Lock()
+	defer fake.updateEmpMutex.Unlock()
+	fake.UpdateEmpStub = nil
+	if fake.updateEmpReturnsOnCall == nil {
+		fake.updateEmpReturnsOnCall = make(map[int]struct {
+			result1 *mongo.UpdateResult
+			result2 error
+		})
+	}
+	fake.updateEmpReturnsOnCall[i] = struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDatabaseInterface) UpdateEmpShift(arg1 model.Shift, arg2 string) (model.Employee, error) {
+	fake.updateEmpShiftMutex.Lock()
+	ret, specificReturn := fake.updateEmpShiftReturnsOnCall[len(fake.updateEmpShiftArgsForCall)]
+	fake.updateEmpShiftArgsForCall = append(fake.updateEmpShiftArgsForCall, struct {
+		arg1 model.Shift
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.UpdateEmpShiftStub
+	fakeReturns := fake.updateEmpShiftReturns
+	fake.recordInvocation("UpdateEmpShift", []interface{}{arg1, arg2})
+	fake.updateEmpShiftMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeDatabaseInterface) UpdateEmpShiftCallCount() int {
+	fake.updateEmpShiftMutex.RLock()
+	defer fake.updateEmpShiftMutex.RUnlock()
+	return len(fake.updateEmpShiftArgsForCall)
+}
+
+func (fake *FakeDatabaseInterface) UpdateEmpShiftCalls(stub func(model.Shift, string) (model.Employee, error)) {
+	fake.updateEmpShiftMutex.Lock()
+	defer fake.updateEmpShiftMutex.Unlock()
+	fake.UpdateEmpShiftStub = stub
+}
+
+func (fake *FakeDatabaseInterface) UpdateEmpShiftArgsForCall(i int) (model.Shift, string) {
+	fake.updateEmpShiftMutex.RLock()
+	defer fake.updateEmpShiftMutex.RUnlock()
+	argsForCall := fake.updateEmpShiftArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeDatabaseInterface) UpdateEmpShiftReturns(result1 model.Employee, result2 error) {
+	fake.updateEmpShiftMutex.Lock()
+	defer fake.updateEmpShiftMutex.Unlock()
+	fake.UpdateEmpShiftStub = nil
+	fake.updateEmpShiftReturns = struct {
+		result1 model.Employee
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDatabaseInterface) UpdateEmpShiftReturnsOnCall(i int, result1 model.Employee, result2 error) {
+	fake.updateEmpShiftMutex.Lock()
+	defer fake.updateEmpShiftMutex.Unlock()
+	fake.UpdateEmpShiftStub = nil
+	if fake.updateEmpShiftReturnsOnCall == nil {
+		fake.updateEmpShiftReturnsOnCall = make(map[int]struct {
+			result1 model.Employee
+			result2 error
+		})
+	}
+	fake.updateEmpShiftReturnsOnCall[i] = struct {
+		result1 model.Employee
 		result2 error
 	}{result1, result2}
 }
@@ -329,8 +564,14 @@ func (fake *FakeDatabaseInterface) Invocations() map[string][][]interface{} {
 	defer fake.deleteByIDMutex.RUnlock()
 	fake.getByIDMutex.RLock()
 	defer fake.getByIDMutex.RUnlock()
+	fake.getEmployeesByDepartmentMutex.RLock()
+	defer fake.getEmployeesByDepartmentMutex.RUnlock()
 	fake.getPaginatedMutex.RLock()
 	defer fake.getPaginatedMutex.RUnlock()
+	fake.updateEmpMutex.RLock()
+	defer fake.updateEmpMutex.RUnlock()
+	fake.updateEmpShiftMutex.RLock()
+	defer fake.updateEmpShiftMutex.RUnlock()
 	fake.updateManyMutex.RLock()
 	defer fake.updateManyMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
