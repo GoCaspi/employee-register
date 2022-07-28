@@ -616,6 +616,176 @@ func TestGetPaginatedEmployeesHandler_Invalid_request_noQueryParamsGiven(t *test
 
 }
 
+func TestHandler_UpdateById(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	jsonPayload := `{
+		"id":"2222",
+        "email":"Hamburg.test.com" 
+		    }`
+
+	var mockDate model.EmployeeReturn
+	json.Unmarshal([]byte(jsonPayload), &mockDate)
+	body := bytes.NewBufferString(jsonPayload)
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/employee/1/update", body)
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "Id", Value: "1"})
+	fakeService := &handlerfakes.FakeServiceInterface{}
+	var mongo mongo.UpdateResult
+	fakeService.UpdateEmployeeReturns(&mongo, errors.New(""))
+
+	expectedErrorMsg := ""
+
+	handlerInstance := handler.NewHandler(fakeService)
+
+	handlerInstance.UpdateById(fakeContest)
+
+	assert.Contains(t, responseRecoder.Body.String(), expectedErrorMsg)
+
+	assert.Equal(t, responseRecoder.Code, 401)
+
+}
+func TestHandler_Update(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	jsonPayload := `{
+		"id":"2222",
+        "email":"Hamburg.test.com" 
+		    }`
+
+	var mockDate model.EmployeeReturn
+	json.Unmarshal([]byte(jsonPayload), &mockDate)
+	body := bytes.NewBufferString(jsonPayload)
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+	fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/employee/1/update", body)
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "id", Value: "1"})
+	fakeService := &handlerfakes.FakeServiceInterface{}
+
+	fakeService.GetEmployeeByIdReturns(model.Employee{ID: ""})
+
+	expectedErrorMsg := ""
+
+	handlerInstance := handler.NewHandler(fakeService)
+
+	handlerInstance.UpdateById(fakeContest)
+
+	assert.Contains(t, responseRecoder.Body.String(), expectedErrorMsg)
+
+	assert.Equal(t, responseRecoder.Code, 400)
+
+}
+func TestHandler_Updateerror(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	jsonPayload := `
+		"id":2222,
+        "email":"Hamburg.test.com" 
+		    `
+
+	var mockDate model.EmployeeReturn
+
+	json.Unmarshal([]byte(jsonPayload), &mockDate)
+
+	body := bytes.NewBufferString(jsonPayload)
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+
+	fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/employee/1/update", body)
+
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "id", Value: "1"})
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+
+	fakeService.GetEmployeeByIdReturns(model.Employee{ID: "2222"})
+
+	expectedErrorMsg := ""
+
+	handlerInstance := handler.NewHandler(fakeService)
+
+	handlerInstance.UpdateById(fakeContest)
+
+	assert.Contains(t, responseRecoder.Body.String(), expectedErrorMsg)
+
+	assert.Equal(t, responseRecoder.Code, 400)
+
+}
+func TestHandler_Uperror(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	jsonPayload := `{
+		"id":"2222",
+        "email":"Hamburg.test.com" 
+		    }`
+
+	var mockDate model.EmployeeReturn
+
+	json.Unmarshal([]byte(jsonPayload), &mockDate)
+
+	body := bytes.NewBufferString(jsonPayload)
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+
+	fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/employee/1/update", body)
+
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "id", Value: "1"})
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+
+	fakeService.GetEmployeeByIdReturns(model.Employee{ID: "2222"})
+
+	fakeService.UpdateEmployeeReturns(&mongo.UpdateResult{}, errors.New(""))
+
+	expectedErrorMsg := ""
+
+	handlerInstance := handler.NewHandler(fakeService)
+
+	handlerInstance.UpdateById(fakeContest)
+
+	assert.Contains(t, responseRecoder.Body.String(), expectedErrorMsg)
+
+	assert.Equal(t, responseRecoder.Code, 400)
+
+}
+func TestHandler_Updateresult(t *testing.T) {
+	responseRecoder := httptest.NewRecorder()
+
+	jsonPayload := `{
+		"id":"2222",
+        "email":"Hamburg.test.com" 
+		    }`
+
+	var mockDate model.EmployeeReturn
+
+	json.Unmarshal([]byte(jsonPayload), &mockDate)
+
+	body := bytes.NewBufferString(jsonPayload)
+
+	fakeContest, _ := gin.CreateTestContext(responseRecoder)
+
+	fakeContest.Request = httptest.NewRequest("POST", "http://localhost:9090/employee/1/update", body)
+
+	fakeContest.Params = append(fakeContest.Params, gin.Param{Key: "id", Value: "1"})
+
+	fakeService := &handlerfakes.FakeServiceInterface{}
+
+	fakeService.GetEmployeeByIdReturns(model.Employee{ID: "2222"})
+
+	fakeService.UpdateEmployeeReturns(&mongo.UpdateResult{}, nil)
+
+	expectedErrorMsg := ""
+
+	handlerInstance := handler.NewHandler(fakeService)
+
+	handlerInstance.UpdateById(fakeContest)
+
+	assert.Contains(t, responseRecoder.Body.String(), expectedErrorMsg)
+
+	assert.Equal(t, responseRecoder.Code, 200)
+
+}
+
 func TestHandler_DepartmentFilter(t *testing.T) {
 
 	filterReturn := []model.EmployeeReturn{

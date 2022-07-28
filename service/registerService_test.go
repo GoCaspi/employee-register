@@ -74,6 +74,22 @@ func TestGetPaginatedEmployees(t *testing.T) {
 	actual, err := serviceInstance.GetPaginatedEmployees(1, 2)
 	assert.Equal(t, fakePaginatedPayload, actual, err)
 }
+func TestEmployeeService_UpdateEmployee(t *testing.T) {
+
+	fakeDB := &servicefakes.FakeDatabaseInterface{}
+
+	mockEmployees := model.EmployeeReturn{
+		ID: "2222", FirstName: "Testupdate", LastName: "Update", Email: "Updatetest@gmail.com"}
+
+	fakeDB.UpdateEmpReturns(&mongo.UpdateResult{}, nil)
+
+	serviceInstance := service.NewEmployeeService(fakeDB)
+
+	actual, _ := serviceInstance.UpdateEmployee(mockEmployees)
+
+	assert.Equal(t, actual, &mongo.UpdateResult{})
+
+}
 
 func TestEmployeeService_GetEmployeesDepartmentFilter(t *testing.T) {
 	fakeDb := &servicefakes.FakeDatabaseInterface{}

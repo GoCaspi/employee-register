@@ -171,3 +171,58 @@ func (c Client) UpdateEmpShift(update model.Shift, id string) (model.Employee, e
 
 	return employee, nil
 }
+
+func (c Client) UpdateEmp(update model.EmployeeReturn) (*mongo.UpdateResult, error) {
+	filter := bson.M{"id": update.ID}
+	// datensatz zur id auslesen
+	// check doc geschnitten datensatzen
+	// change update
+	if update.ID == "" {
+		IdMissing := fmt.Sprintf("User %v got no ID", update.ID)
+		return nil, errors.New(IdMissing)
+	}
+	courser := c.Employee.FindOne(context.TODO(), filter)
+	var employee model.Employee
+	err := courser.Decode(&employee)
+	if employee.ID == "" {
+		IdWrong := fmt.Sprintf("User %v dosent exist", update.ID)
+		return nil, errors.New(IdWrong)
+	}
+	fmt.Println(update)
+	var setElements bson.D
+	if update.FirstName != "" {
+		fmt.Sprintf(update.FirstName)
+		setElements = append(setElements, bson.E{Key: "firstname", Value: update.FirstName})
+	}
+	if update.LastName != "" {
+		fmt.Sprintf(update.LastName)
+		setElements = append(setElements, bson.E{Key: "lastname", Value: update.LastName})
+	}
+	if update.Email != "" {
+		fmt.Sprintf(update.Email)
+		setElements = append(setElements, bson.E{Key: "email", Value: update.Email})
+	}
+	setMap := bson.D{
+		{"$set", setElements},
+	}
+	result, err := c.Employee.UpdateOne(context.TODO(), filter, setMap)
+	if err != nil {
+		return nil, err
+
+	}
+	return result, nil
+}
+
+/*updater := bson.D{{"$set", update}}
+
+results, err := c.Employee.UpdateOne(context.TODO(), filter, updater)
+if err != nil {
+	log.Println("database error")
+	return model.EmployeeReturn{}, err
+}
+if results.ModifiedCount == 0 {
+	err = errors.New("No update could be send to the database")
+	return model.EmployeeReturn{}, err
+}
+
+return update, nil*/

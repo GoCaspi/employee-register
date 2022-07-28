@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"example-project/model"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . DatabaseInterface
@@ -11,6 +12,7 @@ type DatabaseInterface interface {
 	GetByID(id string) model.Employee
 	DeleteByID(id string) (interface{}, error)
 	GetPaginated(page int, limit int) (model.PaginatedPayload, error)
+	UpdateEmp(update model.EmployeeReturn) (*mongo.UpdateResult, error)
 	GetEmployeesByDepartment(department string) ([]model.EmployeeReturn, error)
 	UpdateEmpShift(update model.Shift, id string) (model.Employee, error)
 }
@@ -52,6 +54,11 @@ func (s EmployeeService) DeleteEmployee(id string) (interface{}, error) {
 
 func (s EmployeeService) GetPaginatedEmployees(page int, limit int) (model.PaginatedPayload, error) {
 	result, err := s.DbService.GetPaginated(page, limit)
+	return result, err
+}
+
+func (s EmployeeService) UpdateEmployee(update model.EmployeeReturn) (*mongo.UpdateResult, error) {
+	result, err := s.DbService.UpdateEmp(update)
 	return result, err
 }
 

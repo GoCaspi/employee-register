@@ -15,6 +15,7 @@ type HandlerInterface interface {
 	GetAllEmployeesHandler(c *gin.Context)
 	OAuthRedirectHandler(context *gin.Context)
 	OAuthStarterHandler(context *gin.Context)
+	UpdateById(context *gin.Context)
 	DepartmentFilter(context *gin.Context)
 	AddShift(context *gin.Context)
 	GetDutyRoster(context *gin.Context)
@@ -35,6 +36,8 @@ func CreateRoutes(group *gin.RouterGroup) {
 	group.POST("/Logout", Handler.Logout)
 	group.POST("/register", Handler.CreateEmployeeHandler)
 	group.GET("/github", Handler.OAuthStarterHandler)
+	group.PUT("/:id/update", Handler.UpdateById)
+	group.GET("/:id/getTest", Handler.GetEmployeeHandler)
 
 	group.GET("/authRedirect", Handler.OAuthRedirectHandler)
 

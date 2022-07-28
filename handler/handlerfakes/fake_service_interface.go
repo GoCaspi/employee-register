@@ -5,6 +5,8 @@ import (
 	"example-project/handler"
 	"example-project/model"
 	"sync"
+
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type FakeServiceInterface struct {
@@ -84,6 +86,19 @@ type FakeServiceInterface struct {
 	}
 	getPaginatedEmployeesReturnsOnCall map[int]struct {
 		result1 model.PaginatedPayload
+		result2 error
+	}
+	UpdateEmployeeStub        func(model.EmployeeReturn) (*mongo.UpdateResult, error)
+	updateEmployeeMutex       sync.RWMutex
+	updateEmployeeArgsForCall []struct {
+		arg1 model.EmployeeReturn
+	}
+	updateEmployeeReturns struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}
+	updateEmployeeReturnsOnCall map[int]struct {
+		result1 *mongo.UpdateResult
 		result2 error
 	}
 	GetRosterStub        func([]model.EmployeeReturn, int) (map[string]map[string]model.Workload, error)
@@ -492,6 +507,70 @@ func (fake *FakeServiceInterface) GetPaginatedEmployeesReturnsOnCall(i int, resu
 	}{result1, result2}
 }
 
+func (fake *FakeServiceInterface) UpdateEmployee(arg1 model.EmployeeReturn) (*mongo.UpdateResult, error) {
+	fake.updateEmployeeMutex.Lock()
+	ret, specificReturn := fake.updateEmployeeReturnsOnCall[len(fake.updateEmployeeArgsForCall)]
+	fake.updateEmployeeArgsForCall = append(fake.updateEmployeeArgsForCall, struct {
+		arg1 model.EmployeeReturn
+	}{arg1})
+	stub := fake.UpdateEmployeeStub
+	fakeReturns := fake.updateEmployeeReturns
+	fake.recordInvocation("UpdateEmployee", []interface{}{arg1})
+	fake.updateEmployeeMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) UpdateEmployeeCallCount() int {
+	fake.updateEmployeeMutex.RLock()
+	defer fake.updateEmployeeMutex.RUnlock()
+	return len(fake.updateEmployeeArgsForCall)
+}
+
+func (fake *FakeServiceInterface) UpdateEmployeeCalls(stub func(model.EmployeeReturn) (*mongo.UpdateResult, error)) {
+	fake.updateEmployeeMutex.Lock()
+	defer fake.updateEmployeeMutex.Unlock()
+	fake.UpdateEmployeeStub = stub
+}
+
+func (fake *FakeServiceInterface) UpdateEmployeeArgsForCall(i int) model.EmployeeReturn {
+	fake.updateEmployeeMutex.RLock()
+	defer fake.updateEmployeeMutex.RUnlock()
+	argsForCall := fake.updateEmployeeArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeServiceInterface) UpdateEmployeeReturns(result1 *mongo.UpdateResult, result2 error) {
+	fake.updateEmployeeMutex.Lock()
+	defer fake.updateEmployeeMutex.Unlock()
+	fake.UpdateEmployeeStub = nil
+	fake.updateEmployeeReturns = struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) UpdateEmployeeReturnsOnCall(i int, result1 *mongo.UpdateResult, result2 error) {
+	fake.updateEmployeeMutex.Lock()
+	defer fake.updateEmployeeMutex.Unlock()
+	fake.UpdateEmployeeStub = nil
+	if fake.updateEmployeeReturnsOnCall == nil {
+		fake.updateEmployeeReturnsOnCall = make(map[int]struct {
+			result1 *mongo.UpdateResult
+			result2 error
+		})
+	}
+	fake.updateEmployeeReturnsOnCall[i] = struct {
+		result1 *mongo.UpdateResult
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeServiceInterface) GetRoster(arg1 []model.EmployeeReturn, arg2 int) (map[string]map[string]model.Workload, error) {
 	var arg1Copy []model.EmployeeReturn
 	if arg1 != nil {
@@ -577,6 +656,8 @@ func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	defer fake.getEmployeesDepartmentFilterMutex.RUnlock()
 	fake.getPaginatedEmployeesMutex.RLock()
 	defer fake.getPaginatedEmployeesMutex.RUnlock()
+	fake.updateEmployeeMutex.RLock()
+	defer fake.updateEmployeeMutex.RUnlock()
 	fake.getRosterMutex.RLock()
 	defer fake.getRosterMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

@@ -8,6 +8,7 @@ import (
 	"example-project/utility"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
 	"strconv"
 	//	"go.mongodb.org/mongo-driver/x/mongo/driver/uuid"
 	"github.com/google/uuid"
@@ -20,6 +21,7 @@ type ServiceInterface interface {
 	GetEmployeeById(id string) model.Employee
 	DeleteEmployee(id string) (interface{}, error)
 	GetPaginatedEmployees(page int, limit int) (model.PaginatedPayload, error)
+	UpdateEmployee(update model.EmployeeReturn) (*mongo.UpdateResult, error)
 	GetEmployeesDepartmentFilter(department string) ([]model.EmployeeReturn, error)
 	AddShift(emp model.Employee, shift model.Shift) ([]model.Shift, error)
 	GetRoster(employees []model.EmployeeReturn, week int) (map[string]map[string]model.Workload, error)
@@ -441,3 +443,45 @@ func (handler Handler) GetDutyRoster(context *gin.Context) {
 ]
 
 */
+
+func (handler Handler) UpdateById(context *gin.Context) {
+	pathParam, ok := context.Params.Get("id")
+
+	if !ok {
+
+		context.AbortWithStatusJSON(401, "No Id was submitted")
+		return
+	}
+
+	response := handler.ServiceInterface.GetEmployeeById(pathParam)
+
+	if response.ID == "" {
+		context.AbortWithStatusJSON(400, "Employee was not found")
+		return
+	}
+
+	var payLoad model.EmployeeReturn
+	err := context.ShouldBindJSON(&payLoad)
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"errorMessage": "invalid payload",
+		})
+		return
+	}
+
+	update := model.EmployeeReturn{
+		ID:        response.ID,
+		FirstName: payLoad.FirstName,
+		LastName:  payLoad.LastName,
+		Email:     payLoad.Email,
+	}
+
+	result, err := handler.ServiceInterface.UpdateEmployee(update)
+
+	if err != nil {
+		context.AbortWithStatusJSON(400, err.Error())
+		return
+	}
+
+	context.JSON(200, result)
+}
