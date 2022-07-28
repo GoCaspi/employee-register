@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"strconv"
-
 	//	"go.mongodb.org/mongo-driver/x/mongo/driver/uuid"
 	"github.com/google/uuid"
 	"net/http"
@@ -21,6 +20,8 @@ type ServiceInterface interface {
 	GetEmployeeById(id string) model.Employee
 	DeleteEmployee(id string) (interface{}, error)
 	GetPaginatedEmployees(page int, limit int) (model.PaginatedPayload, error)
+	GetEmployeesDepartmentFilter(department string) ([]model.EmployeeReturn, error)
+	AddShift(emp model.Employee, shift model.Shift) ([]model.Shift, error)
 }
 
 var MyCacheMap = cache.NewCacheMap{}
@@ -317,5 +318,115 @@ func getGithubData(accessToken string) string {
 	// Convert byte slice to string and return
 	return string(respbody)
 }
+
+*/
+func (handler Handler) DepartmentFilter(context *gin.Context) {
+	department, depOk := context.GetQuery("department")
+	if !depOk {
+		noQueryError := "No department was given in the query parameter!"
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": noQueryError,
+		})
+		return
+	}
+
+	response, err := handler.ServiceInterface.GetEmployeesDepartmentFilter(department)
+	if err != nil {
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+
+	context.JSON(200, response)
+	return
+
+}
+
+/*
+func (handler Handler) AddShift(context *gin.Context) {
+
+	id, ok := context.GetQuery("id")
+	if !ok {
+		noQueryError := "No Id was submitted. Please add an id to your query"
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": noQueryError,
+		})
+		return
+	}
+
+	employee := handler.ServiceInterface.GetEmployeeById(id)
+	// mock shift
+	startInput, _ := time.Parse(time.RFC3339, "2006-01-02T15:04:05Z")
+	endInput, _ := time.Parse(time.RFC3339, "2006-01-02T17:04:05Z")
+	myMon := model.Workload{Duty: "Cleaninig", Start: startInput, End: endInput, Total: endInput.Sub(startInput)}
+
+	m := make(map[string]model.Workload, 5)
+	m["Monday"] = myMon
+	myShift := model.Shift{Duties: m, Week: 1}
+	// end of mocking
+
+	response, err := handler.ServiceInterface.AddShift(employee, myShift)
+	if err != nil {
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+
+	context.JSON(200, response)
+
+}
+
+*/
+
+func (handler Handler) AddShift(context *gin.Context) {
+
+	id, ok := context.GetQuery("id")
+	if !ok {
+		noQueryError := "No Id was submitted. Please add an id to your query"
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": noQueryError,
+		})
+		return
+	}
+
+	var shiftPayload model.Shift
+	err := context.ShouldBindJSON(&shiftPayload)
+	if err != nil {
+		context.AbortWithStatusJSON(400, gin.H{
+			"errorMessage": "Bad payload",
+		})
+		return
+	}
+
+	employee := handler.ServiceInterface.GetEmployeeById(id)
+
+	response, err := handler.ServiceInterface.AddShift(employee, shiftPayload)
+	if err != nil {
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+
+	context.JSON(200, response)
+
+}
+
+/*
+[
+{
+"week": 1,
+"duties": {
+"Monday": {
+"duty": "Cleaninig",
+"start": "2006-01-02T15:04:05Z",
+"end": "2006-01-02T17:04:05Z",
+"total": 7200000000000
+}
+}
+}
+]
 
 */

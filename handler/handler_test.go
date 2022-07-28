@@ -615,3 +615,52 @@ func TestGetPaginatedEmployeesHandler_Invalid_request_noQueryParamsGiven(t *test
 	assert.Equal(t, 200, fakeRecorder.Code)
 
 }
+
+func TestHandler_DepartmentFilter(t *testing.T) {
+
+	filterReturn := []model.EmployeeReturn{
+		model.EmployeeReturn{ID: "100", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com", Department: "fakeDepartment"},
+		model.EmployeeReturn{ID: "200", FirstName: "Test", LastName: "Tester", Email: "tester@gmail.com", Department: "fakeDepartment"},
+	}
+
+	filterEmptyReturn := []model.EmployeeReturn{}
+	fakeError := errors.New("fake error triggered")
+	var tests = []struct {
+		noQueryParams bool
+		serviceErr    bool
+		expectedCode  int
+		Return        []model.EmployeeReturn
+		err           error
+	}{
+		{true, false, 404, filterEmptyReturn, fakeError},
+		{false, true, 404, filterReturn, fakeError},
+		{false, false, 200, filterReturn, nil},
+	}
+
+	for _, tt := range tests {
+		fakeRecorder := httptest.NewRecorder()
+		fakeContext, _ := gin.CreateTestContext(fakeRecorder)
+		fakeContext.Request = httptest.NewRequest("GET", "http://localhost:9090/filter?department=fakeDepartment", nil)
+
+		fakeService := &handlerfakes.FakeServiceInterface{}
+		fakeService.GetEmployeesDepartmentFilterReturns(tt.Return, tt.err)
+
+		if tt.noQueryParams {
+			fakeContext.Request = httptest.NewRequest("GET", "http://localhost:9090/filter", nil)
+			handlerInstance := handler.NewHandler(fakeService)
+			handlerInstance.DepartmentFilter(fakeContext)
+			assert.Equal(t, tt.expectedCode, fakeRecorder.Code)
+		}
+
+		if tt.serviceErr {
+			handlerInstance := handler.NewHandler(fakeService)
+			handlerInstance.DepartmentFilter(fakeContext)
+			assert.Equal(t, tt.expectedCode, fakeRecorder.Code)
+
+		}
+
+		handlerInstance := handler.NewHandler(fakeService)
+		handlerInstance.DepartmentFilter(fakeContext)
+		assert.Equal(t, tt.expectedCode, fakeRecorder.Code)
+	}
+}
