@@ -26,6 +26,7 @@ func HashEmployees(emps []model.EmployeePayload) []model.Employee {
 				Username: HashUsernameAndPassword(emp.Auth).Username,
 				Password: HashUsernameAndPassword(emp.Auth).Password,
 			},
+			Department: emp.Department,
 		}
 		hashedEmps = append(hashedEmps, hashedEmp)
 	}

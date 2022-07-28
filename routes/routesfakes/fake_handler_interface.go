@@ -9,6 +9,11 @@ import (
 )
 
 type FakeHandlerInterface struct {
+	AddShiftStub        func(*gin.Context)
+	addShiftMutex       sync.RWMutex
+	addShiftArgsForCall []struct {
+		arg1 *gin.Context
+	}
 	CreateEmployeeHandlerStub        func(*gin.Context)
 	createEmployeeHandlerMutex       sync.RWMutex
 	createEmployeeHandlerArgsForCall []struct {
@@ -19,9 +24,19 @@ type FakeHandlerInterface struct {
 	deleteByIdHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
+	DepartmentFilterStub        func(*gin.Context)
+	departmentFilterMutex       sync.RWMutex
+	departmentFilterArgsForCall []struct {
+		arg1 *gin.Context
+	}
 	GetAllEmployeesHandlerStub        func(*gin.Context)
 	getAllEmployeesHandlerMutex       sync.RWMutex
 	getAllEmployeesHandlerArgsForCall []struct {
+		arg1 *gin.Context
+	}
+	GetDutyRosterStub        func(*gin.Context)
+	getDutyRosterMutex       sync.RWMutex
+	getDutyRosterArgsForCall []struct {
 		arg1 *gin.Context
 	}
 	GetEmployeeHandlerStub        func(*gin.Context)
@@ -61,6 +76,38 @@ type FakeHandlerInterface struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *FakeHandlerInterface) AddShift(arg1 *gin.Context) {
+	fake.addShiftMutex.Lock()
+	fake.addShiftArgsForCall = append(fake.addShiftArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.AddShiftStub
+	fake.recordInvocation("AddShift", []interface{}{arg1})
+	fake.addShiftMutex.Unlock()
+	if stub != nil {
+		fake.AddShiftStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) AddShiftCallCount() int {
+	fake.addShiftMutex.RLock()
+	defer fake.addShiftMutex.RUnlock()
+	return len(fake.addShiftArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) AddShiftCalls(stub func(*gin.Context)) {
+	fake.addShiftMutex.Lock()
+	defer fake.addShiftMutex.Unlock()
+	fake.AddShiftStub = stub
+}
+
+func (fake *FakeHandlerInterface) AddShiftArgsForCall(i int) *gin.Context {
+	fake.addShiftMutex.RLock()
+	defer fake.addShiftMutex.RUnlock()
+	argsForCall := fake.addShiftArgsForCall[i]
+	return argsForCall.arg1
 }
 
 func (fake *FakeHandlerInterface) CreateEmployeeHandler(arg1 *gin.Context) {
@@ -127,6 +174,38 @@ func (fake *FakeHandlerInterface) DeleteByIdHandlerArgsForCall(i int) *gin.Conte
 	return argsForCall.arg1
 }
 
+func (fake *FakeHandlerInterface) DepartmentFilter(arg1 *gin.Context) {
+	fake.departmentFilterMutex.Lock()
+	fake.departmentFilterArgsForCall = append(fake.departmentFilterArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.DepartmentFilterStub
+	fake.recordInvocation("DepartmentFilter", []interface{}{arg1})
+	fake.departmentFilterMutex.Unlock()
+	if stub != nil {
+		fake.DepartmentFilterStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) DepartmentFilterCallCount() int {
+	fake.departmentFilterMutex.RLock()
+	defer fake.departmentFilterMutex.RUnlock()
+	return len(fake.departmentFilterArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) DepartmentFilterCalls(stub func(*gin.Context)) {
+	fake.departmentFilterMutex.Lock()
+	defer fake.departmentFilterMutex.Unlock()
+	fake.DepartmentFilterStub = stub
+}
+
+func (fake *FakeHandlerInterface) DepartmentFilterArgsForCall(i int) *gin.Context {
+	fake.departmentFilterMutex.RLock()
+	defer fake.departmentFilterMutex.RUnlock()
+	argsForCall := fake.departmentFilterArgsForCall[i]
+	return argsForCall.arg1
+}
+
 func (fake *FakeHandlerInterface) GetAllEmployeesHandler(arg1 *gin.Context) {
 	fake.getAllEmployeesHandlerMutex.Lock()
 	fake.getAllEmployeesHandlerArgsForCall = append(fake.getAllEmployeesHandlerArgsForCall, struct {
@@ -156,6 +235,38 @@ func (fake *FakeHandlerInterface) GetAllEmployeesHandlerArgsForCall(i int) *gin.
 	fake.getAllEmployeesHandlerMutex.RLock()
 	defer fake.getAllEmployeesHandlerMutex.RUnlock()
 	argsForCall := fake.getAllEmployeesHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeHandlerInterface) GetDutyRoster(arg1 *gin.Context) {
+	fake.getDutyRosterMutex.Lock()
+	fake.getDutyRosterArgsForCall = append(fake.getDutyRosterArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.GetDutyRosterStub
+	fake.recordInvocation("GetDutyRoster", []interface{}{arg1})
+	fake.getDutyRosterMutex.Unlock()
+	if stub != nil {
+		fake.GetDutyRosterStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) GetDutyRosterCallCount() int {
+	fake.getDutyRosterMutex.RLock()
+	defer fake.getDutyRosterMutex.RUnlock()
+	return len(fake.getDutyRosterArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) GetDutyRosterCalls(stub func(*gin.Context)) {
+	fake.getDutyRosterMutex.Lock()
+	defer fake.getDutyRosterMutex.Unlock()
+	fake.GetDutyRosterStub = stub
+}
+
+func (fake *FakeHandlerInterface) GetDutyRosterArgsForCall(i int) *gin.Context {
+	fake.getDutyRosterMutex.RLock()
+	defer fake.getDutyRosterMutex.RUnlock()
+	argsForCall := fake.getDutyRosterArgsForCall[i]
 	return argsForCall.arg1
 }
 
@@ -386,12 +497,18 @@ func (fake *FakeHandlerInterface) ValidateTokenArgsForCall(i int) *gin.Context {
 func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.addShiftMutex.RLock()
+	defer fake.addShiftMutex.RUnlock()
 	fake.createEmployeeHandlerMutex.RLock()
 	defer fake.createEmployeeHandlerMutex.RUnlock()
 	fake.deleteByIdHandlerMutex.RLock()
 	defer fake.deleteByIdHandlerMutex.RUnlock()
+	fake.departmentFilterMutex.RLock()
+	defer fake.departmentFilterMutex.RUnlock()
 	fake.getAllEmployeesHandlerMutex.RLock()
 	defer fake.getAllEmployeesHandlerMutex.RUnlock()
+	fake.getDutyRosterMutex.RLock()
+	defer fake.getDutyRosterMutex.RUnlock()
 	fake.getEmployeeHandlerMutex.RLock()
 	defer fake.getEmployeeHandlerMutex.RUnlock()
 	fake.loginMutex.RLock()

@@ -1,0 +1,869 @@
+{
+	"info": {
+		"_postman_id": "e234942d-fe79-4f13-8c48-00c57e8da928",
+		"name": "employee-register",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21612803"
+	},
+	"item": [
+		{
+			"name": "Register",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const uuid = require(\"uuid\")",
+							"",
+							"pm.environment.set(\"mockId1\", uuid.v4())",
+							"pm.environment.set(\"mockId2\", uuid.v4())",
+							"pm.environment.set(\"mockId3\", uuid.v4())",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"employees\": [\n    {\n        \"id\": \"{{mockId1}}\",\n        \"first_name\": \"{{mockFirstName1}}\",\n        \"last_name\": \"{{mockLastName1}}\",\n        \"email\": \"{{mockEmail1}}\",\n        \"auth\":  {\n            \"username\":\"{{mockUsername1}}\",\n            \"password\":\"{{mockPassword1}}\"\n    \n        }\n    },\n    {\n        \"id\": \"{{mockId2}}\",\n        \"first_name\": \"{{mockFirstName2}}\",\n        \"last_name\": \"{{mockLastName2}}\",\n        \"email\": \"{{mockEmail2}}\",\n        \"auth\":  {\n            \"username\":\"{{mockUsername2}}\",\n            \"password\":\"{{mockPassword2}}\"\n    \n        }\n    },\n    {\n        \"id\": \"{{mockId3}}\",\n        \"first_name\": \"{{mockFirstName3}}\",\n        \"last_name\": \"{{mockLastName3}}\",\n        \"email\": \"{{mockEmail3}}\",\n        \"auth\":  {\n            \"username\":\"{{mockUsername3}}\",\n            \"password\":\"{{mockPassword3}}\"\n    \n        }\n    }\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/register",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Register - Success",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"employees\": [\n    {\n        \"id\": \"2222\",\n        \"first_name\": \"Jona\",\n        \"last_name\": \"Miller\",\n        \"email\": \"jona.millermail.com\",\n        \"auth\":  {\n            \"username\":\"Jona\",\n            \"password\":\"pa55word\"\n    }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9090/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"register"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 12 Jul 2022 15:35:58 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "28"
+						}
+					],
+					"cookie": [],
+					"body": "[\n    \"62cd94de7b84cd99a01d474e\"\n]"
+				},
+				{
+					"name": "Register - Invalid Payload",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"employees\": [\n    {\n        \"id\": \"2222\",\n        \"first_name\": \"Jona\",\n        \"last_name\": \"Miller\",\n        \"email\": \"jona.millermail.com\",\n        \"auth\":  {\n            \"username\":\"Jona\",\n            \"password\":\"pa55word\"\n    \n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9090/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"register"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 13 Jul 2022 11:17:54 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "34"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"invalid payload\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Login User 1\", function(){",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"var loginURL = pm.environment.get(\"host\") + \"/Login?id=\"",
+							"",
+							"var body2 = JSON.stringify({",
+							"    \"username\": pm.environment.get(\"mockUsername2\"),",
+							"    \"password\": pm.environment.get(\"mockPassword2\")",
+							"})",
+							"",
+							"var body3 = JSON.stringify({",
+							"    \"username\": pm.environment.get(\"mockUsername3\"),",
+							"    \"password\": pm.environment.get(\"mockPassword3\")",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: loginURL + pm.environment.get(\"mockId2\"),",
+							"    method: \"POST\",",
+							"    body: body2,",
+							"}, (err, res) => {",
+							"    pm.test(\"Login User 2\", function(){",
+							"        pm.expect(res).to.have.status(200)",
+							"    })",
+							"    ",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: loginURL + pm.environment.get(\"mockId3\"),",
+							"    method: \"POST\",",
+							"    body: body3,",
+							"}, (err, res) => {",
+							"    pm.test(\"Login User 3\", function(){",
+							"        pm.expect(res).to.have.status(200)",
+							"    })",
+							"    ",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{mockUsername1}}\",\n    \"password\": \"{{mockPassword1}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/Login?id={{mockId1}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"Login"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "{{mockId1}}"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Login - Success",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"Jona\",\n    \"password\": \"pa55word\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9090/Login?id=2222",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"Login"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "2222"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 12 Jul 2022 15:37:19 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "62"
+						}
+					],
+					"cookie": [],
+					"body": "\"Success! Your Token is: b915b416-77b2-4dea-97a1-5f224eca3e59\""
+				},
+				{
+					"name": "Login - Wrong Credentials",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"Jona\",\n    \"password\": \"pa5word\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9090/Login?id=2222",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"Login"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "2222"
+								}
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 12 Jul 2022 15:49:41 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "35"
+						}
+					],
+					"cookie": [],
+					"body": "\"The username or password is wrong\""
+				}
+			]
+		},
+		{
+			"name": "Logout",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "b915b416-77b2-4dea-97a1-5f224eca3e59",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/Logout?id={{mockId1}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"Logout"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "{{mockId1}}"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Logout - Success",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9090/Logout?id=2222",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"Logout"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "2222"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 12 Jul 2022 15:40:10 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "51"
+						}
+					],
+					"cookie": [],
+					"body": "\"Logut successfull. Your token is no longer valid.\""
+				},
+				{
+					"name": "Logout - Invalid Token",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9090/Logout?id=222",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"Logout"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "222"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 12 Jul 2022 15:49:07 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "74"
+						}
+					],
+					"cookie": [],
+					"body": "\"The provided token is not valid. Please login to generate a valid token.\""
+				}
+			]
+		},
+		{
+			"name": "Getbyid",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{tokenAdmin}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/employee/2222/get",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"employee",
+						"2222",
+						"get"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "GetByID - Success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9090/employee/1657178729293/get",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"employee",
+								"1657178729293",
+								"get"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 12 Jul 2022 15:41:11 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "89"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": \"1657178729293\",\n    \"first_name\": \"Uca\",\n    \"last_name\": \"Hauer\",\n    \"email\": \"UcaHauer@mail.com\"\n}"
+				},
+				{
+					"name": "GetbyID - Unauthorized",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9090/employee/16578793/get",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"employee",
+								"16578793",
+								"get"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 13 Jul 2022 11:15:32 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "59"
+						}
+					],
+					"cookie": [],
+					"body": "\"No token is provided. Please login in and provide a token\""
+				}
+			]
+		},
+		{
+			"name": "Delete",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.response.to.have.status(200)",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{tokenAdmin}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/employee/4444/delete",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"employee",
+						"4444",
+						"delete"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Delete - Success",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9090/employee/1657532376676/delete",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"employee",
+								"1657532376676",
+								"delete"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 12 Jul 2022 15:42:14 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "1"
+						}
+					],
+					"cookie": [],
+					"body": "1"
+				},
+				{
+					"name": "Delete - User dosent exist",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9090/employee/1657532376676/delete",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"employee",
+								"1657532376676",
+								"delete"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 12 Jul 2022 15:51:15 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "50"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"the Employee id is not existing\"\n}"
+				},
+				{
+					"name": "Delete - Unauthorized",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9090/employee/1657532376676/delete",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"employee",
+								"1657532376676",
+								"delete"
+							]
+						}
+					},
+					"status": "Forbidden",
+					"code": 403,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 12 Jul 2022 15:51:42 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "59"
+						}
+					],
+					"cookie": [],
+					"body": "\"No token is provided. Please login in and provide a token\""
+				}
+			]
+		},
+		{
+			"name": "GetPaginatedEmployees",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status check\", function(){",
+							"    pm.response.to.have.status(200)",
+							"})",
+							"",
+							"var baseURL = pm.environment.get(\"host\") + \"/employee\"",
+							"",
+							"",
+							"",
+							"pm.sendRequest({",
+							"    url: baseURL + \"/get?page=0&limit=3\",",
+							"    method: \"GET\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"tokenAdmin\")",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Test Error Case: Page Zero\", function() {",
+							"        pm.expect(res).to.have.property('code', 400)",
+							"    })   ",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: baseURL + \"/get?page=grs&limit=grwy\",",
+							"    method: \"GET\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"tokenAdmin\")",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Test Error Case: Invalid Queries\", function() {",
+							"        pm.expect(res).to.have.property('code', 400)",
+							"    })   ",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: baseURL + \"/get?page=99&limit=3\",",
+							"    method: \"GET\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"tokenAdmin\")",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Test Error Case: Page out of range\", function() {",
+							"        pm.expect(res).to.have.property('code', 400)",
+							"    })   ",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: baseURL + \"/get\",",
+							"    method: \"GET\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.environment.get(\"tokenAdmin\")",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Test Error Case: No pagination request\", function() {",
+							"        pm.expect(res).to.have.property('code', 200)",
+							"    })   ",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{tokenAdmin}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/employee/get?page=1&limit=2",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"employee",
+						"get"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "limit",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "b7422078-4c3d-4e11-a7b2-3d2fccf00f71",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
