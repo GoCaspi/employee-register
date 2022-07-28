@@ -664,3 +664,151 @@ func TestHandler_DepartmentFilter(t *testing.T) {
 		assert.Equal(t, tt.expectedCode, fakeRecorder.Code)
 	}
 }
+
+func TestHandler_GetDutyRoster(t *testing.T) {
+	departmentEmployeeReturn := []model.EmployeeReturn{
+		model.EmployeeReturn{ID: "1", FirstName: "Elton", LastName: "Duck", Email: "elton.duck@mail.com", Department: "fakeDepartment"},
+	}
+
+	//	rosterReturn := map[string]map[string]model.Workload{}
+
+	var tests = []struct {
+		noWeek              bool
+		noDepartment        bool
+		DepartmentReturn    []model.EmployeeReturn
+		expectedCode        int
+		strConvErr          bool
+		departmentFilterErr bool
+		rosterErr           bool
+	}{
+		{true, false, departmentEmployeeReturn, 404, false, false, false},
+		{false, true, departmentEmployeeReturn, 404, false, false, false},
+		{false, false, departmentEmployeeReturn, 400, true, false, false},
+		{false, false, departmentEmployeeReturn, 404, false, true, false},
+		{false, false, departmentEmployeeReturn, 404, false, false, true},
+		{false, false, departmentEmployeeReturn, 200, false, false, false},
+	}
+
+	for _, tt := range tests {
+		fakeRecorder := httptest.NewRecorder()
+		fakeContext, _ := gin.CreateTestContext(fakeRecorder)
+		fakeService := &handlerfakes.FakeServiceInterface{}
+		handlerInstance := handler.NewHandler(fakeService)
+
+		if tt.noWeek {
+			fakeContext.Request = httptest.NewRequest("GET", "http://localhost:9090/dutyRoster?department=fakeDepartment", nil)
+			handlerInstance.GetDutyRoster(fakeContext)
+			assert.Equal(t, fakeRecorder.Code, tt.expectedCode)
+		}
+
+		if tt.noDepartment {
+			fakeContext.Request = httptest.NewRequest("GET", "http://localhost:9090/dutyRoster?week=1", nil)
+			handlerInstance.GetDutyRoster(fakeContext)
+			assert.Equal(t, fakeRecorder.Code, tt.expectedCode)
+		}
+
+		if tt.strConvErr {
+			fakeContext.Request = httptest.NewRequest("GET", "http://localhost:9090/dutyRoster?week=abc&department=fakeDepartment", nil)
+			handlerInstance.GetDutyRoster(fakeContext)
+			assert.Equal(t, fakeRecorder.Code, tt.expectedCode)
+		}
+
+		if tt.departmentFilterErr {
+			fakeContext.Request = httptest.NewRequest("GET", "http://localhost:9090/dutyRoster?week=1&department=fakeDepartment", nil)
+			fakeService.GetEmployeesDepartmentFilterReturns(tt.DepartmentReturn, errors.New("fakeError"))
+			handlerInstance.GetDutyRoster(fakeContext)
+			assert.Equal(t, fakeRecorder.Code, tt.expectedCode)
+		}
+
+		if tt.rosterErr {
+			fakeContext.Request = httptest.NewRequest("GET", "http://localhost:9090/dutyRoster?week=1&department=fakeDepartment", nil)
+			fakeService.GetEmployeesDepartmentFilterReturns(tt.DepartmentReturn, nil)
+			fakeService.GetRosterReturns(map[string]map[string]model.Workload{}, errors.New("fakeErrorRoster"))
+			handlerInstance.GetDutyRoster(fakeContext)
+			assert.Equal(t, fakeRecorder.Code, tt.expectedCode)
+		}
+		fakeContext.Request = httptest.NewRequest("GET", "http://localhost:9090/dutyRoster?week=1&department=fakeDepartment", nil)
+		fakeService.GetEmployeesDepartmentFilterReturns(tt.DepartmentReturn, nil)
+		fakeService.GetRosterReturns(map[string]map[string]model.Workload{}, nil)
+		handlerInstance.GetDutyRoster(fakeContext)
+		assert.Equal(t, fakeRecorder.Code, tt.expectedCode)
+
+	}
+}
+
+func TestHandler_AddShift(t *testing.T) {
+	jsonPayload := `{
+ "week": 1,
+"duties": {
+"Monday": {
+"duty": "Cleaninig",
+"start": "2006-01-02T15:04:05Z",
+"end": "2006-01-02T17:04:05Z",
+"total": 7200000000000
+}
+}
+}`
+
+	badJsonPayload := `
+ "week": 1,
+"duties": {
+"Monday": {
+"duty": "Cleaninig",
+"start": "2006-01-02T15:04:05Z",
+"end": "2006-01-02T17:04:05Z",
+"total": 7200000000000
+}
+}
+}`
+
+	//	mockEmployee := model.Employee{ID: "1",FirstName: "Anna",LastName: "Pfanne", Email: "anna.pfanne@mail.com"}
+
+	mockShiftArr := []model.Shift{}
+
+	var tests = []struct {
+		noId               bool
+		Payload            string
+		expectedCode       int
+		bindJsonErr        bool
+		addShiftServiceErr bool
+	}{
+		{true, jsonPayload, 404, false, false},
+		{false, badJsonPayload, 400, true, false},
+		{false, jsonPayload, 404, false, true},
+		{false, jsonPayload, 200, false, false},
+	}
+
+	for _, tt := range tests {
+		fakeRecorder := httptest.NewRecorder()
+		fakeContext, _ := gin.CreateTestContext(fakeRecorder)
+		fakeService := &handlerfakes.FakeServiceInterface{}
+		handlerInstance := handler.NewHandler(fakeService)
+		var mockShift model.Shift
+		json.Unmarshal([]byte(tt.Payload), &mockShift)
+		body := bytes.NewBufferString(tt.Payload)
+
+		if tt.noId {
+			fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/addShift", body)
+			handlerInstance.AddShift(fakeContext)
+			assert.Equal(t, tt.expectedCode, fakeRecorder.Code)
+		}
+
+		if tt.bindJsonErr {
+			fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/addShift?id=1", body)
+			handlerInstance.AddShift(fakeContext)
+			assert.Equal(t, tt.expectedCode, fakeRecorder.Code)
+		}
+
+		if tt.addShiftServiceErr {
+			fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/addShift?id=1", body)
+			fakeService.AddShiftReturns(mockShiftArr, errors.New("fakeServiceError"))
+			handlerInstance.AddShift(fakeContext)
+			assert.Equal(t, tt.expectedCode, fakeRecorder.Code)
+		}
+
+		fakeContext.Request = httptest.NewRequest("POST", "http://localhost:9090/addShift?id=1", body)
+		fakeService.AddShiftReturns(mockShiftArr, nil)
+		handlerInstance.AddShift(fakeContext)
+		assert.Equal(t, tt.expectedCode, fakeRecorder.Code)
+	}
+}

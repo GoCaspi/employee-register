@@ -34,6 +34,11 @@ type FakeHandlerInterface struct {
 	getAllEmployeesHandlerArgsForCall []struct {
 		arg1 *gin.Context
 	}
+	GetDutyRosterStub        func(*gin.Context)
+	getDutyRosterMutex       sync.RWMutex
+	getDutyRosterArgsForCall []struct {
+		arg1 *gin.Context
+	}
 	GetEmployeeHandlerStub        func(*gin.Context)
 	getEmployeeHandlerMutex       sync.RWMutex
 	getEmployeeHandlerArgsForCall []struct {
@@ -225,6 +230,38 @@ func (fake *FakeHandlerInterface) GetAllEmployeesHandlerArgsForCall(i int) *gin.
 	fake.getAllEmployeesHandlerMutex.RLock()
 	defer fake.getAllEmployeesHandlerMutex.RUnlock()
 	argsForCall := fake.getAllEmployeesHandlerArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeHandlerInterface) GetDutyRoster(arg1 *gin.Context) {
+	fake.getDutyRosterMutex.Lock()
+	fake.getDutyRosterArgsForCall = append(fake.getDutyRosterArgsForCall, struct {
+		arg1 *gin.Context
+	}{arg1})
+	stub := fake.GetDutyRosterStub
+	fake.recordInvocation("GetDutyRoster", []interface{}{arg1})
+	fake.getDutyRosterMutex.Unlock()
+	if stub != nil {
+		fake.GetDutyRosterStub(arg1)
+	}
+}
+
+func (fake *FakeHandlerInterface) GetDutyRosterCallCount() int {
+	fake.getDutyRosterMutex.RLock()
+	defer fake.getDutyRosterMutex.RUnlock()
+	return len(fake.getDutyRosterArgsForCall)
+}
+
+func (fake *FakeHandlerInterface) GetDutyRosterCalls(stub func(*gin.Context)) {
+	fake.getDutyRosterMutex.Lock()
+	defer fake.getDutyRosterMutex.Unlock()
+	fake.GetDutyRosterStub = stub
+}
+
+func (fake *FakeHandlerInterface) GetDutyRosterArgsForCall(i int) *gin.Context {
+	fake.getDutyRosterMutex.RLock()
+	defer fake.getDutyRosterMutex.RUnlock()
+	argsForCall := fake.getDutyRosterArgsForCall[i]
 	return argsForCall.arg1
 }
 
@@ -433,6 +470,8 @@ func (fake *FakeHandlerInterface) Invocations() map[string][][]interface{} {
 	defer fake.departmentFilterMutex.RUnlock()
 	fake.getAllEmployeesHandlerMutex.RLock()
 	defer fake.getAllEmployeesHandlerMutex.RUnlock()
+	fake.getDutyRosterMutex.RLock()
+	defer fake.getDutyRosterMutex.RUnlock()
 	fake.getEmployeeHandlerMutex.RLock()
 	defer fake.getEmployeeHandlerMutex.RUnlock()
 	fake.loginMutex.RLock()

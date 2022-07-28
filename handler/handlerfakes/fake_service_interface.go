@@ -86,6 +86,20 @@ type FakeServiceInterface struct {
 		result1 model.PaginatedPayload
 		result2 error
 	}
+	GetRosterStub        func([]model.EmployeeReturn, int) (map[string]map[string]model.Workload, error)
+	getRosterMutex       sync.RWMutex
+	getRosterArgsForCall []struct {
+		arg1 []model.EmployeeReturn
+		arg2 int
+	}
+	getRosterReturns struct {
+		result1 map[string]map[string]model.Workload
+		result2 error
+	}
+	getRosterReturnsOnCall map[int]struct {
+		result1 map[string]map[string]model.Workload
+		result2 error
+	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -478,6 +492,76 @@ func (fake *FakeServiceInterface) GetPaginatedEmployeesReturnsOnCall(i int, resu
 	}{result1, result2}
 }
 
+func (fake *FakeServiceInterface) GetRoster(arg1 []model.EmployeeReturn, arg2 int) (map[string]map[string]model.Workload, error) {
+	var arg1Copy []model.EmployeeReturn
+	if arg1 != nil {
+		arg1Copy = make([]model.EmployeeReturn, len(arg1))
+		copy(arg1Copy, arg1)
+	}
+	fake.getRosterMutex.Lock()
+	ret, specificReturn := fake.getRosterReturnsOnCall[len(fake.getRosterArgsForCall)]
+	fake.getRosterArgsForCall = append(fake.getRosterArgsForCall, struct {
+		arg1 []model.EmployeeReturn
+		arg2 int
+	}{arg1Copy, arg2})
+	stub := fake.GetRosterStub
+	fakeReturns := fake.getRosterReturns
+	fake.recordInvocation("GetRoster", []interface{}{arg1Copy, arg2})
+	fake.getRosterMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeServiceInterface) GetRosterCallCount() int {
+	fake.getRosterMutex.RLock()
+	defer fake.getRosterMutex.RUnlock()
+	return len(fake.getRosterArgsForCall)
+}
+
+func (fake *FakeServiceInterface) GetRosterCalls(stub func([]model.EmployeeReturn, int) (map[string]map[string]model.Workload, error)) {
+	fake.getRosterMutex.Lock()
+	defer fake.getRosterMutex.Unlock()
+	fake.GetRosterStub = stub
+}
+
+func (fake *FakeServiceInterface) GetRosterArgsForCall(i int) ([]model.EmployeeReturn, int) {
+	fake.getRosterMutex.RLock()
+	defer fake.getRosterMutex.RUnlock()
+	argsForCall := fake.getRosterArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeServiceInterface) GetRosterReturns(result1 map[string]map[string]model.Workload, result2 error) {
+	fake.getRosterMutex.Lock()
+	defer fake.getRosterMutex.Unlock()
+	fake.GetRosterStub = nil
+	fake.getRosterReturns = struct {
+		result1 map[string]map[string]model.Workload
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeServiceInterface) GetRosterReturnsOnCall(i int, result1 map[string]map[string]model.Workload, result2 error) {
+	fake.getRosterMutex.Lock()
+	defer fake.getRosterMutex.Unlock()
+	fake.GetRosterStub = nil
+	if fake.getRosterReturnsOnCall == nil {
+		fake.getRosterReturnsOnCall = make(map[int]struct {
+			result1 map[string]map[string]model.Workload
+			result2 error
+		})
+	}
+	fake.getRosterReturnsOnCall[i] = struct {
+		result1 map[string]map[string]model.Workload
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
@@ -493,6 +577,8 @@ func (fake *FakeServiceInterface) Invocations() map[string][][]interface{} {
 	defer fake.getEmployeesDepartmentFilterMutex.RUnlock()
 	fake.getPaginatedEmployeesMutex.RLock()
 	defer fake.getPaginatedEmployeesMutex.RUnlock()
+	fake.getRosterMutex.RLock()
+	defer fake.getRosterMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

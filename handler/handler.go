@@ -22,6 +22,7 @@ type ServiceInterface interface {
 	GetPaginatedEmployees(page int, limit int) (model.PaginatedPayload, error)
 	GetEmployeesDepartmentFilter(department string) ([]model.EmployeeReturn, error)
 	AddShift(emp model.Employee, shift model.Shift) ([]model.Shift, error)
+	GetRoster(employees []model.EmployeeReturn, week int) (map[string]map[string]model.Workload, error)
 }
 
 var MyCacheMap = cache.NewCacheMap{}
@@ -343,43 +344,6 @@ func (handler Handler) DepartmentFilter(context *gin.Context) {
 
 }
 
-/*
-func (handler Handler) AddShift(context *gin.Context) {
-
-	id, ok := context.GetQuery("id")
-	if !ok {
-		noQueryError := "No Id was submitted. Please add an id to your query"
-		context.AbortWithStatusJSON(404, gin.H{
-			"errorMessage": noQueryError,
-		})
-		return
-	}
-
-	employee := handler.ServiceInterface.GetEmployeeById(id)
-	// mock shift
-	startInput, _ := time.Parse(time.RFC3339, "2006-01-02T15:04:05Z")
-	endInput, _ := time.Parse(time.RFC3339, "2006-01-02T17:04:05Z")
-	myMon := model.Workload{Duty: "Cleaninig", Start: startInput, End: endInput, Total: endInput.Sub(startInput)}
-
-	m := make(map[string]model.Workload, 5)
-	m["Monday"] = myMon
-	myShift := model.Shift{Duties: m, Week: 1}
-	// end of mocking
-
-	response, err := handler.ServiceInterface.AddShift(employee, myShift)
-	if err != nil {
-		context.AbortWithStatusJSON(404, gin.H{
-			"errorMessage": err.Error(),
-		})
-		return
-	}
-
-	context.JSON(200, response)
-
-}
-
-*/
-
 func (handler Handler) AddShift(context *gin.Context) {
 
 	id, ok := context.GetQuery("id")
@@ -412,6 +376,53 @@ func (handler Handler) AddShift(context *gin.Context) {
 
 	context.JSON(200, response)
 
+}
+
+func (handler Handler) GetDutyRoster(context *gin.Context) {
+	department, depOk := context.GetQuery("department")
+	if !depOk {
+		noDepartmentQuery := "No department was specified in the query."
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": noDepartmentQuery,
+		})
+		return
+	}
+	week, weekOk := context.GetQuery("week")
+	weekInt, strConvErr := strconv.Atoi(week)
+	if !weekOk {
+		noWeekQuery := "No week was specified in the query."
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": noWeekQuery,
+		})
+		return
+	}
+
+	if strConvErr != nil {
+		context.AbortWithStatusJSON(400, gin.H{
+			"errorMessage": strConvErr.Error(),
+		})
+		return
+	}
+
+	departmentEmployees, err := handler.ServiceInterface.GetEmployeesDepartmentFilter(department)
+
+	if err != nil {
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+
+	roster, err := handler.ServiceInterface.GetRoster(departmentEmployees, weekInt)
+
+	if err != nil {
+		context.AbortWithStatusJSON(404, gin.H{
+			"errorMessage": err.Error(),
+		})
+		return
+	}
+
+	context.JSON(200, roster)
 }
 
 /*

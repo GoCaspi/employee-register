@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/mongo"
 	"testing"
+	"time"
 )
 
 func TestGetEmployeeById(t *testing.T) {
@@ -116,4 +117,92 @@ func TestEmployeeService_GetEmployeesDepartmentFilter(t *testing.T) {
 			assert.Equal(t, fakeNoResultErr, actualErr)
 		}
 	}
+}
+
+func TestEmployeeService_GetRoster(t *testing.T) {
+
+	fakeShifts := []model.Shift{
+		model.Shift{Duties: map[string]model.Workload{"Monday": model.Workload{Duty: "Cleaning", Start: time.Time{}, End: time.Time{}}}, Week: 1},
+	}
+
+	Returns := model.Employee{
+		FirstName: "John", LastName: "James", ID: "1", Email: "john.james@mail.com", Auth: model.HashedAuth{}, Department: "fakeDepartment", Shifts: fakeShifts,
+	}
+
+	empInput := []model.EmployeeReturn{model.EmployeeReturn{ID: "1"}}
+	emptyInput := []model.EmployeeReturn{}
+	expectedErr := errors.New("The recieved roster is empty.")
+
+	var tests = []struct {
+		getByIdReturn model.Employee
+		empInput      []model.EmployeeReturn
+		weekInput     int
+		err           error
+	}{
+		{Returns, empInput, 1, nil},
+		{Returns, empInput, 2, expectedErr},
+		{Returns, emptyInput, 1, expectedErr},
+	}
+
+	for _, tt := range tests {
+		fakeDB := &servicefakes.FakeDatabaseInterface{}
+		if tt.err == nil {
+			fakeDB.GetByIDReturns(tt.getByIdReturn)
+			serviceInstance := service.NewEmployeeService(fakeDB)
+			res, err := serviceInstance.GetRoster(tt.empInput, tt.weekInput)
+			assert.Equal(t, len(res), 1)
+			assert.Equal(t, tt.err, err)
+		} else {
+			fakeDB.GetByIDReturns(tt.getByIdReturn)
+			serviceInstance := service.NewEmployeeService(fakeDB)
+			res, err := serviceInstance.GetRoster(tt.empInput, tt.weekInput)
+			assert.Equal(t, len(res), 0)
+			assert.Equal(t, tt.err.Error(), err.Error())
+		}
+	}
+
+}
+
+func TestEmployeeService_AddShift(t *testing.T) {
+	fakeShifts := []model.Shift{
+		model.Shift{Duties: map[string]model.Workload{"Monday": model.Workload{Duty: "Cleaning", Start: time.Time{}, End: time.Time{}}}, Week: 1},
+	}
+
+	empInput := model.Employee{
+		FirstName: "John", LastName: "James", ID: "1", Email: "john.james@mail.com", Auth: model.HashedAuth{}, Department: "fakeDepartment", Shifts: fakeShifts,
+	}
+
+	shiftInput := model.Shift{
+		Duties: map[string]model.Workload{"Monday": model.Workload{Duty: "Cleaning", Start: time.Time{}, End: time.Time{}}}, Week: 2,
+	}
+
+	shiftInputDoubled := model.Shift{
+		Duties: map[string]model.Workload{"Monday": model.Workload{Duty: "Cleaning", Start: time.Time{}, End: time.Time{}}}, Week: 1,
+	}
+
+	expectedErr := errors.New("The shift is already set for that week")
+
+	var tests = []struct {
+		EmpInput   model.Employee
+		ShiftInput model.Shift
+		err        error
+	}{
+		{empInput, shiftInput, nil},
+		{empInput, shiftInputDoubled, expectedErr},
+	}
+
+	for _, tt := range tests {
+		fakeDB := &servicefakes.FakeDatabaseInterface{}
+		fakeDB.UpdateEmpShiftReturns(tt.EmpInput, tt.err)
+		serviceInstance := service.NewEmployeeService(fakeDB)
+		res, err := serviceInstance.AddShift(tt.EmpInput, tt.ShiftInput)
+
+		if tt.err == nil {
+			assert.Equal(t, res, empInput.Shifts)
+			assert.Equal(t, 1, len(res))
+		} else {
+			assert.Equal(t, tt.err.Error(), err.Error())
+		}
+	}
+
 }
