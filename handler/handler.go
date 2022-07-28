@@ -365,7 +365,46 @@ func (handler Handler) UpdateById(context *gin.Context) {
 
 	context.JSON(200, result)
 }
-func (handler Handler) ImplementrightManagement(c *gin.Context) {
+
+/*func (handler Handler) ImplementrightManagement(c *gin.Context) {
+
+if len(c.Request.Header.Values("Authorization")) < 1 {
+	c.AbortWithStatusJSON(403, noTokenErr)
+	return
+}
+
+reqToken := utility.GetBearerToken(c)
+
+tokenIsValid := cache.TokenIsInMap(reqToken, MyCacheMap)
+if !tokenIsValid {
+	c.AbortWithStatusJSON(401, noTokenErr)
+
+}
+
+ID := cache.GiveIdToToken(reqToken, MyCacheMap)
+Employee := handler.ServiceInterface.GetEmployeeById(ID)
+
+if Employee.Admin == "employee" {
+
+	c.AbortWithStatusJSON(401, "ID is not accessbale to the rights management ")
+
+	return
+} else if Employee.Admin == "Master" {
+
+	{
+		c.AbortWithStatusJSON(401, "ID is accessbale just to the Updatefunction ")
+		return
+	}
+
+} else if Employee.Admin == "Boss" {
+
+	{
+		/*c.AbortWithStatusJSON(401, "ID is accessbale  ")
+
+		return
+	}
+	}*/
+func (handler Handler) ImplementrightManagementemployee(c *gin.Context) {
 
 	if len(c.Request.Header.Values("Authorization")) < 1 {
 		c.AbortWithStatusJSON(403, noTokenErr)
@@ -388,21 +427,60 @@ func (handler Handler) ImplementrightManagement(c *gin.Context) {
 		c.AbortWithStatusJSON(401, "ID is not accessbale to the rights management ")
 
 		return
-	} else if Employee.Admin == "Master" {
+	}
+}
+
+func (handler Handler) ImplementrightManagementMaster(c *gin.Context) {
+
+	if len(c.Request.Header.Values("Authorization")) < 1 {
+		c.AbortWithStatusJSON(403, noTokenErr)
+		return
+	}
+
+	reqToken := utility.GetBearerToken(c)
+
+	tokenIsValid := cache.TokenIsInMap(reqToken, MyCacheMap)
+	if !tokenIsValid {
+		c.AbortWithStatusJSON(401, noTokenErr)
+
+	}
+
+	ID := cache.GiveIdToToken(reqToken, MyCacheMap)
+	Employee := handler.ServiceInterface.GetEmployeeById(ID)
+
+	if Employee.Admin == "Master" {
 
 		{
 			c.AbortWithStatusJSON(401, "ID is accessbale just to the Updatefunction ")
 			return
 		}
 
-	} else if Employee.Admin == "Boss" {
+	}
+}
 
-		{
-			/*c.AbortWithStatusJSON(401, "ID is accessbale  ")*/
+func (handler Handler) ImplementrightManagementBoss(c *gin.Context) {
 
-			return
-		}
+	if len(c.Request.Header.Values("Authorization")) < 1 {
+		c.AbortWithStatusJSON(403, noTokenErr)
+		return
+	}
 
+	reqToken := utility.GetBearerToken(c)
+
+	tokenIsValid := cache.TokenIsInMap(reqToken, MyCacheMap)
+	if !tokenIsValid {
+		c.AbortWithStatusJSON(401, noTokenErr)
+
+	}
+
+	ID := cache.GiveIdToToken(reqToken, MyCacheMap)
+	Employee := handler.ServiceInterface.GetEmployeeById(ID)
+
+	if Employee.Admin == "Boss" {
+		return
+
+	} else {
+		c.AbortWithStatusJSON(400, "Implement right management  ist not accecebal to the function Delete")
 	}
 
 }
