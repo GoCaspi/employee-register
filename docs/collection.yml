@@ -1,0 +1,352 @@
+openapi: 3.0.0
+info:
+  title: employee-register
+  version: 1.0.0
+servers:
+  - url: http://{{host}}
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+security:
+  - bearerAuth: []
+paths:
+  /register:
+    post:
+      tags:
+        - General
+      summary: Register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                employees:
+                  - id: '{{mockId1}}'
+                    first_name: '{{mockFirstName1}}'
+                    last_name: '{{mockLastName1}}'
+                    email: '{{mockEmail1}}'
+                    auth:
+                      username: '{{mockUsername1}}'
+                      password: '{{mockPassword1}}'
+                  - id: '{{mockId2}}'
+                    first_name: '{{mockFirstName2}}'
+                    last_name: '{{mockLastName2}}'
+                    email: '{{mockEmail2}}'
+                    auth:
+                      username: '{{mockUsername2}}'
+                      password: '{{mockPassword2}}'
+                  - id: '{{mockId3}}'
+                    first_name: '{{mockFirstName3}}'
+                    last_name: '{{mockLastName3}}'
+                    email: '{{mockEmail3}}'
+                    auth:
+                      username: '{{mockUsername3}}'
+                      password: '{{mockPassword3}}'
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Tue, 12 Jul 2022 15:35:58 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '28'
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                - 62cd94de7b84cd99a01d474e
+        '400':
+          description: Bad Request
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Wed, 13 Jul 2022 11:17:54 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '34'
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errorMessage: invalid payload
+  /Login:
+    post:
+      tags:
+        - General
+      summary: Login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                username: '{{mockUsername1}}'
+                password: '{{mockPassword1}}'
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+          example: '{{mockId1}}'
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Tue, 12 Jul 2022 15:37:19 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '62'
+          content:
+            application/json:
+              schema:
+                type: object
+              example: 'Success! Your Token is: b915b416-77b2-4dea-97a1-5f224eca3e59'
+        '401':
+          description: Unauthorized
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Tue, 12 Jul 2022 15:49:41 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '35'
+          content:
+            application/json:
+              schema:
+                type: object
+              example: The username or password is wrong
+  /Logout:
+    post:
+      tags:
+        - General
+      summary: Logout
+      requestBody:
+        content: {}
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+          example: '{{mockId1}}'
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Tue, 12 Jul 2022 15:40:10 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '51'
+          content:
+            application/json:
+              schema:
+                type: object
+              example: Logut successfull. Your token is no longer valid.
+        '400':
+          description: Bad Request
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Tue, 12 Jul 2022 15:49:07 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '74'
+          content:
+            application/json:
+              schema:
+                type: object
+              example: >-
+                The provided token is not valid. Please login to generate a
+                valid token.
+  /employee/2222/get:
+    get:
+      tags:
+        - General
+      summary: Getbyid
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Tue, 12 Jul 2022 15:41:11 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '89'
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: '1657178729293'
+                first_name: Uca
+                last_name: Hauer
+                email: UcaHauer@mail.com
+        '401':
+          description: Unauthorized
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Wed, 13 Jul 2022 11:15:32 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '59'
+          content:
+            application/json:
+              schema:
+                type: object
+              example: No token is provided. Please login in and provide a token
+  /employee/4444/delete:
+    delete:
+      tags:
+        - General
+      summary: Delete
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Tue, 12 Jul 2022 15:42:14 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '1'
+          content:
+            application/json:
+              schema:
+                type: object
+              example: 1
+        '400':
+          description: Bad Request
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Tue, 12 Jul 2022 15:51:15 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '50'
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errorMessage: the Employee id is not existing
+        '403':
+          description: Forbidden
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Tue, 12 Jul 2022 15:51:42 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '59'
+          content:
+            application/json:
+              schema:
+                type: object
+              example: No token is provided. Please login in and provide a token
+  /employee/get:
+    get:
+      tags:
+        - General
+      summary: GetPaginatedEmployees
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+          example: '1'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          example: '2'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
