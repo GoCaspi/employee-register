@@ -752,12 +752,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{host}}/123/update",
+					"raw": "{{host}}/{{mockId1}}/update",
 					"host": [
 						"{{host}}"
 					],
 					"path": [
-						"123",
+						"{{mockId1}}",
 						"update"
 					]
 				}

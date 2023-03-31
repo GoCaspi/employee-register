@@ -288,7 +288,7 @@ paths:
                   summary: GetEmployees - Page Limit Reached
                   value:
                     errorMessage: page limit reached, please reduce the page number
-  /123/update:
+  /{mockId1}/update:
     put:
       tags:
         - General
@@ -300,6 +300,12 @@ paths:
               type: object
               example:
                 first_name: Günther
+      parameters:
+        - name: mockId1
+          in: path
+          schema:
+            type: string
+          required: true
       responses:
         '200':
           description: OK
