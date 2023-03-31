@@ -1255,6 +1255,124 @@
 			]
 		},
 		{
+			"name": "OAUTH Get Github Link",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/github",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"github"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Github Auth LINK",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/github",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"github"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Mar 2023 10:50:38 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "73"
+						}
+					],
+					"cookie": [],
+					"body": "\"https://github.com/login/oauth/authorize?client_id=xxx\""
+				}
+			]
+		},
+		{
+			"name": "OAUTH Github Redirect",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/authRedirect?code={{githubSecretCode}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"authRedirect"
+					],
+					"query": [
+						{
+							"key": "code",
+							"value": "{{githubSecretCode}}"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "OAUTH Github Redirect",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/authRedirect?code={{githubSecretCode}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"authRedirect"
+							],
+							"query": [
+								{
+									"key": "code",
+									"value": "{{githubSecretCode}}"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Mar 2023 10:55:11 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "131"
+						}
+					],
+					"cookie": [],
+					"body": "\"Success! Your Guest-Id is: xxx and your guest-token is: yyy\""
+				}
+			]
+		},
+		{
 			"name": "Delete",
 			"event": [
 				{
