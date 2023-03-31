@@ -4,7 +4,6 @@ info:
   version: 1.0.0
 servers:
   - url: http://{{host}}
-  - url: http://{{base_url}}
 components:
   securitySchemes:
     bearerAuth:
@@ -20,10 +19,35 @@ paths:
       summary: Register
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               type: object
-              properties: {}
+              example:
+                employees:
+                  - id: '{{mockId1}}'
+                    first_name: '{{mockFirstName1}}'
+                    last_name: '{{mockLastName1}}'
+                    email: '{{mockEmail1}}'
+                    auth:
+                      username: '{{mockUsername1}}'
+                      password: '{{mockPassword1}}'
+                    department: ON4T
+                  - id: '{{mockId2}}'
+                    first_name: '{{mockFirstName2}}'
+                    last_name: '{{mockLastName2}}'
+                    email: '{{mockEmail2}}'
+                    auth:
+                      username: '{{mockUsername2}}'
+                      password: '{{mockPassword2}}'
+                    department: ON4T
+                  - id: '{{mockId3}}'
+                    first_name: '{{mockFirstName3}}'
+                    last_name: '{{mockLastName3}}'
+                    email: '{{mockEmail3}}'
+                    auth:
+                      username: '{{mockUsername3}}'
+                      password: '{{mockPassword3}}'
+                    department: ON4T
       responses:
         '200':
           description: OK
@@ -67,12 +91,6 @@ paths:
                 type: object
               example:
                 errorMessage: invalid payload
-        undefined:
-          content:
-            text/plain:
-              schema:
-                type: string
-              example: null
   /Login:
     post:
       tags:
@@ -133,65 +151,7 @@ paths:
               schema:
                 type: object
               example: The username or password is wrong
-  /Logout:
-    post:
-      tags:
-        - General
-      summary: Logout
-      requestBody:
-        content: {}
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: query
-          schema:
-            type: string
-          example: '{{mockId1}}'
-      responses:
-        '200':
-          description: OK
-          headers:
-            Content-Type:
-              schema:
-                type: string
-                example: application/json; charset=utf-8
-            Date:
-              schema:
-                type: string
-                example: Tue, 12 Jul 2022 15:40:10 GMT
-            Content-Length:
-              schema:
-                type: integer
-                example: '51'
-          content:
-            application/json:
-              schema:
-                type: object
-              example: Logut successfull. Your token is no longer valid.
-        '400':
-          description: Bad Request
-          headers:
-            Content-Type:
-              schema:
-                type: string
-                example: application/json; charset=utf-8
-            Date:
-              schema:
-                type: string
-                example: Tue, 12 Jul 2022 15:49:07 GMT
-            Content-Length:
-              schema:
-                type: integer
-                example: '74'
-          content:
-            application/json:
-              schema:
-                type: object
-              example: >-
-                The provided token is not valid. Please login to generate a
-                valid token.
-  /employee/{mockId3}/get:
+  /employee/{mockId2}/get:
     get:
       tags:
         - General
@@ -199,7 +159,7 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: mockId3
+        - name: mockId2
           in: path
           schema:
             type: string
@@ -249,13 +209,324 @@ paths:
               schema:
                 type: object
               example: No token is provided. Please login in and provide a token
-  /employee/4444/delete:
+  /employee/get:
+    get:
+      tags:
+        - General
+      summary: GetEmployees
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+          example: '1'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          example: '2'
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Fri, 31 Mar 2023 09:17:23 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '305'
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                employees:
+                  - id: 1274380d-7b86-4a7a-bf7c-bd868514f539
+                    first_name: Liam
+                    last_name: Brother
+                    email: liam.brother@aol.com
+                    department: ON4T
+                  - id: a2262cd9-ee16-4148-9f0e-b9d60162f902
+                    first_name: Hans
+                    last_name: Peter
+                    email: hans.peter@gmail.com
+                    department: ON4T
+                pageLimit: 2
+        '400':
+          description: Bad Request
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Fri, 31 Mar 2023 09:22:09 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '77'
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: GetEmployees - Invalid Page Number
+                  value:
+                    errorMessage: invalid page number, page number can't be zero or negative
+                example-1:
+                  summary: GetEmployees - Page Limit Reached
+                  value:
+                    errorMessage: page limit reached, please reduce the page number
+  /123/update:
+    put:
+      tags:
+        - General
+      summary: UpdateEmployee
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                first_name: Günther
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Fri, 31 Mar 2023 09:24:13 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '72'
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                MatchedCount: 1
+                ModifiedCount: 1
+                UpsertedCount: 0
+                UpsertedID: null
+        '400':
+          description: Bad Request
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Fri, 31 Mar 2023 09:24:47 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '34'
+          content:
+            application/json:
+              schema:
+                type: object
+              examples:
+                example-0:
+                  summary: UpdateEmployee - Invalid Payload
+                  value:
+                    errorMessage: invalid payload
+                example-1:
+                  summary: UpdateEmployee - Employee was not found
+                  value: Employee was not found
+  /employee/addShift:
+    post:
+      tags:
+        - General
+      summary: CreateDutyRoster
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                week: 2
+                duties:
+                  default:
+                    duty: default
+                    start: '2023-03-31T11:04:36+02:00'
+                    end: '2023-03-31T11:04:51+02:00'
+                    duration: 30000
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+          example: '{{mockId1}}'
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Fri, 31 Mar 2023 09:16:11 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '132'
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                - week: 2
+                  duties:
+                    default:
+                      duty: default
+                      start: '2023-03-31T11:04:36+02:00'
+                      end: '2023-03-31T11:04:51+02:00'
+                      total: 0
+        '400':
+          description: Bad Request
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Fri, 31 Mar 2023 09:26:30 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '30'
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errorMessage: Bad payload
+        '404':
+          description: Not Found
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Fri, 31 Mar 2023 09:27:29 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '58'
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errorMessage: No update could be send to the database
+  /employee/dutyRoster:
+    get:
+      tags:
+        - General
+      summary: GetDutyRoster
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: department
+          in: query
+          schema:
+            type: string
+          example: ON4T
+        - name: week
+          in: query
+          schema:
+            type: integer
+          example: '2'
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Fri, 31 Mar 2023 09:29:29 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '156'
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                'Hans Peter id: bf4351c5-8250-45ad-8f00-823a98caec99':
+                  default:
+                    duty: default
+                    start: '2023-03-31T09:04:36Z'
+                    end: '2023-03-31T09:04:51Z'
+                    total: 0
+        '404':
+          description: Not Found
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Fri, 31 Mar 2023 09:28:46 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '58'
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                errorMessage: No results could be found to your query
+  /employee/{mockId3}/delete:
     delete:
       tags:
         - General
       summary: Delete
       security:
         - bearerAuth: []
+      parameters:
+        - name: mockId3
+          in: path
+          schema:
+            type: string
+          required: true
       responses:
         '200':
           description: OK
@@ -318,49 +589,61 @@ paths:
               schema:
                 type: object
               example: No token is provided. Please login in and provide a token
-  /employee/get:
-    get:
+  /Logout:
+    post:
       tags:
         - General
-      summary: GetPaginatedEmployees
+      summary: Logout
+      requestBody:
+        content: {}
       security:
         - bearerAuth: []
       parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-          example: '1'
-        - name: limit
-          in: query
-          schema:
-            type: integer
-          example: '2'
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
-  /dutyRoster:
-    get:
-      tags:
-        - General
-      summary: DutyRoster
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: department
+        - name: id
           in: query
           schema:
             type: string
-          example: myDepartment2
-        - name: week
-          in: query
-          schema:
-            type: integer
-          example: '1'
+          example: '{{mockId1}}'
       responses:
         '200':
-          description: Successful response
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Tue, 12 Jul 2022 15:40:10 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '51'
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: object
+              example: Logut successfull. Your token is no longer valid.
+        '400':
+          description: Bad Request
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Date:
+              schema:
+                type: string
+                example: Tue, 12 Jul 2022 15:49:07 GMT
+            Content-Length:
+              schema:
+                type: integer
+                example: '74'
+          content:
+            application/json:
+              schema:
+                type: object
+              example: >-
+                The provided token is not valid. Please login to generate a
+                valid token.
