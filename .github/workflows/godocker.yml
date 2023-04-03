@@ -1,23 +1,17 @@
-name: employee-register-docker
+name: Deployment Employee Register
 
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
+  # This workflow uses actions that are not certified by GitHub.
+  # They are provided by a third-party and are governed by
+  # separate terms of service, privacy policy, and support
 # documentation.
 
-on:
-  push:
-    branches: [ "master", "dev" ]
-    # Publish semver tags as releases.
-  pull_request:
-    branches: [ "master" ]
-
-env:
-  # Use docker.io for Docker Hub if empty
-  REGISTRY: on4treg.azurecr.io
-  # github.repository as <account>/<repo>
-  IMAGE_NAME: projectx
-  DOCKER_USER: on4treg
+#on:
+#  push:
+#    branches: [ "master", "dev","feature/ON4T-174_Backend_for_Tasks" ]
+# Publish semver tags as releases.
+#  pull_request:
+#    branches: [ "master" ]
+on: workflow_dispatch
 
 
 jobs:
@@ -54,9 +48,17 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ env.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_TOKEN }}
+          registry: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@79abd3f86f79a9d68a23c75a09a9a85889262adf
+
+      - name: 'Login via Azure CLI'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_RBAC_TOKEN }}
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
@@ -64,7 +66,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.REGISTRY_IMAGE_NAME }}
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
@@ -74,18 +76,23 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.REGISTRY_IMAGE_NAME }}:${{github.head_ref || github.ref_name}}-${{ github.sha }}
 
-      # Sign the resulting Docker image digest except on PRs.
-      # This will only write to the public Rekor transparency log when the Docker
-      # repository is public to avoid leaking data.  If you would like to publish
-      # transparency data even for private images, pass --force to cosign below.
-      # https://github.com/sigstore/cosign
-      - name: Sign the published Docker image
-        if: ${{ github.event_name != 'pull_request' }}
-        env:
-          COSIGN_EXPERIMENTAL: "true"
-        # This step uses the identity token to provision an ephemeral certificate
-        # against the sigstore community Fulcio instance.
-        run: cosign sign ${{ steps.meta.outputs.tags }}@${{ steps.build-and-push.outputs.digest }}
+      - name: Deploy Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "employeeRegisterApp"
+          publish-profile: ${{secrets.AZURE_WEB_APP_PUBLISH_PROFILE}}
+          images: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ secrets.REGISTRY_IMAGE_NAME }}:${{github.head_ref || github.ref_name}}-${{ github.sha }}
+      - name: Configure App Environments
+        uses: Azure/appservice-settings@v1
+        with:
+          app-name: 'employeeRegisterApp'
+          app-settings-json: |
+            [
+                {
+                    "name": "MONGO_URL",
+                    "value": "${{ secrets.MONGO_URL }}",
+                    "slotSetting": false
+                }
+            ]

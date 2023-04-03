@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "e234942d-fe79-4f13-8c48-00c57e8da928",
+		"_postman_id": "0377506a-70a5-4bae-9a6f-be3b72021e21",
 		"name": "employee-register",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "21612803"
@@ -13,7 +13,9 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							""
+							"pm.test(\"Register Check\", function(){",
+							"        pm.response.to.have.status(200)",
+							"})"
 						],
 						"type": "text/javascript"
 					}
@@ -24,9 +26,9 @@
 						"exec": [
 							"const uuid = require(\"uuid\")",
 							"",
-							"pm.environment.set(\"mockId1\", uuid.v4())",
-							"pm.environment.set(\"mockId2\", uuid.v4())",
-							"pm.environment.set(\"mockId3\", uuid.v4())",
+							"pm.collectionVariables.set(\"mockId1\", uuid.v4())",
+							"pm.collectionVariables.set(\"mockId2\", uuid.v4())",
+							"pm.collectionVariables.set(\"mockId3\", uuid.v4())",
 							"",
 							""
 						],
@@ -39,7 +41,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"employees\": [\n    {\n        \"id\": \"{{mockId1}}\",\n        \"first_name\": \"{{mockFirstName1}}\",\n        \"last_name\": \"{{mockLastName1}}\",\n        \"email\": \"{{mockEmail1}}\",\n        \"auth\":  {\n            \"username\":\"{{mockUsername1}}\",\n            \"password\":\"{{mockPassword1}}\"\n    \n        }\n    },\n    {\n        \"id\": \"{{mockId2}}\",\n        \"first_name\": \"{{mockFirstName2}}\",\n        \"last_name\": \"{{mockLastName2}}\",\n        \"email\": \"{{mockEmail2}}\",\n        \"auth\":  {\n            \"username\":\"{{mockUsername2}}\",\n            \"password\":\"{{mockPassword2}}\"\n    \n        }\n    },\n    {\n        \"id\": \"{{mockId3}}\",\n        \"first_name\": \"{{mockFirstName3}}\",\n        \"last_name\": \"{{mockLastName3}}\",\n        \"email\": \"{{mockEmail3}}\",\n        \"auth\":  {\n            \"username\":\"{{mockUsername3}}\",\n            \"password\":\"{{mockPassword3}}\"\n    \n        }\n    }\n  ]\n}",
+					"raw": "{\n  \"employees\": [\n    {\n        \"id\": \"{{mockId1}}\",\n        \"first_name\": \"{{mockFirstName1}}\",\n        \"last_name\": \"{{mockLastName1}}\",\n        \"email\": \"{{mockEmail1}}\",\n        \"auth\":  {\n            \"username\":\"{{mockUsername1}}\",\n            \"password\":\"{{mockPassword1}}\"\n    \n        },\n        \"department\": \"ON4T\"\n    },\n    {\n        \"id\": \"{{mockId2}}\",\n        \"first_name\": \"{{mockFirstName2}}\",\n        \"last_name\": \"{{mockLastName2}}\",\n        \"email\": \"{{mockEmail2}}\",\n        \"auth\":  {\n            \"username\":\"{{mockUsername2}}\",\n            \"password\":\"{{mockPassword2}}\"\n    \n        },\n        \"department\": \"ON4T\"\n    },\n    {\n        \"id\": \"{{mockId3}}\",\n        \"first_name\": \"{{mockFirstName3}}\",\n        \"last_name\": \"{{mockLastName3}}\",\n        \"email\": \"{{mockEmail3}}\",\n        \"auth\":  {\n            \"username\":\"{{mockUsername3}}\",\n            \"password\":\"{{mockPassword3}}\"\n        },\n        \"department\": \"ON4T\"\n    }\n  ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -160,39 +162,54 @@
 						"exec": [
 							"pm.test(\"Login User 1\", function(){",
 							"    pm.response.to.have.status(200)",
+							"    if (pm.response.code == 200){",
+							"        var token = responseBody.split(\"Success! Your Token is: \")[1]",
+							"        token = token.replace(/['\"]+/g, \"\")",
+							"        pm.collectionVariables.set(\"mockToken1\", token)",
+							"    }",
 							"})",
 							"",
 							"var loginURL = pm.environment.get(\"host\") + \"/Login?id=\"",
 							"",
 							"var body2 = JSON.stringify({",
-							"    \"username\": pm.environment.get(\"mockUsername2\"),",
-							"    \"password\": pm.environment.get(\"mockPassword2\")",
+							"    \"username\": pm.collectionVariables.get(\"mockUsername2\"),",
+							"    \"password\": pm.collectionVariables.get(\"mockPassword2\")",
 							"})",
 							"",
 							"var body3 = JSON.stringify({",
-							"    \"username\": pm.environment.get(\"mockUsername3\"),",
-							"    \"password\": pm.environment.get(\"mockPassword3\")",
+							"    \"username\": pm.collectionVariables.get(\"mockUsername3\"),",
+							"    \"password\": pm.collectionVariables.get(\"mockPassword3\")",
 							"})",
 							"",
 							"pm.sendRequest({",
-							"    url: loginURL + pm.environment.get(\"mockId2\"),",
+							"    url: loginURL + pm.collectionVariables.get(\"mockId2\"),",
 							"    method: \"POST\",",
 							"    body: body2,",
 							"}, (err, res) => {",
 							"    pm.test(\"Login User 2\", function(){",
 							"        pm.expect(res).to.have.status(200)",
 							"    })",
+							"    if (res.code == 200){",
+							"        var token = res.text().split(\"Success! Your Token is: \")[1]",
+							"        token = token.replace(/['\"]+/g, \"\")",
+							"        pm.collectionVariables.set(\"mockToken2\", token)",
+							"    }",
 							"    ",
 							"})",
 							"",
 							"pm.sendRequest({",
-							"    url: loginURL + pm.environment.get(\"mockId3\"),",
+							"    url: loginURL + pm.collectionVariables.get(\"mockId3\"),",
 							"    method: \"POST\",",
 							"    body: body3,",
 							"}, (err, res) => {",
 							"    pm.test(\"Login User 3\", function(){",
 							"        pm.expect(res).to.have.status(200)",
 							"    })",
+							"    if (res.code == 200){",
+							"        var token = res.text().split(\"Success! Your Token is: \")[1]",
+							"        token = token.replace(/['\"]+/g, \"\")",
+							"        pm.collectionVariables.set(\"mockToken3\", token)",
+							"    }",
 							"    ",
 							"})"
 						],
@@ -336,134 +353,27 @@
 			]
 		},
 		{
-			"name": "Logout",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "b915b416-77b2-4dea-97a1-5f224eca3e59",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": "{{host}}/Logout?id={{mockId1}}",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"Logout"
-					],
-					"query": [
-						{
-							"key": "id",
-							"value": "{{mockId1}}"
-						}
-					]
-				}
-			},
-			"response": [
-				{
-					"name": "Logout - Success",
-					"originalRequest": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:9090/Logout?id=2222",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "9090",
-							"path": [
-								"Logout"
-							],
-							"query": [
-								{
-									"key": "id",
-									"value": "2222"
-								}
-							]
-						}
-					},
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8"
-						},
-						{
-							"key": "Date",
-							"value": "Tue, 12 Jul 2022 15:40:10 GMT"
-						},
-						{
-							"key": "Content-Length",
-							"value": "51"
-						}
-					],
-					"cookie": [],
-					"body": "\"Logut successfull. Your token is no longer valid.\""
-				},
-				{
-					"name": "Logout - Invalid Token",
-					"originalRequest": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:9090/Logout?id=222",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "9090",
-							"path": [
-								"Logout"
-							],
-							"query": [
-								{
-									"key": "id",
-									"value": "222"
-								}
-							]
-						}
-					},
-					"status": "Bad Request",
-					"code": 400,
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8"
-						},
-						{
-							"key": "Date",
-							"value": "Tue, 12 Jul 2022 15:49:07 GMT"
-						},
-						{
-							"key": "Content-Length",
-							"value": "74"
-						}
-					],
-					"cookie": [],
-					"body": "\"The provided token is not valid. Please login to generate a valid token.\""
-				}
-			]
-		},
-		{
 			"name": "Getbyid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check for Status 200\", function(){",
+							"        pm.response.to.have.status(200)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"auth": {
 					"type": "bearer",
 					"bearer": [
 						{
 							"key": "token",
-							"value": "{{tokenAdmin}}",
+							"value": "{{mockToken2}}",
 							"type": "string"
 						}
 					]
@@ -471,13 +381,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{host}}/employee/2222/get",
+					"raw": "{{host}}/employee/{{mockId2}}/get",
 					"host": [
 						"{{host}}"
 					],
 					"path": [
 						"employee",
-						"2222",
+						"{{mockId2}}",
 						"get"
 					]
 				}
@@ -564,14 +474,75 @@
 			]
 		},
 		{
-			"name": "Delete",
+			"name": "GetEmployees",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.response.to.have.status(200)",
+							"pm.test(\"Status check\", function(){",
+							"    pm.response.to.have.status(200)",
+							"})",
 							"",
+							"var baseURL = pm.environment.get(\"host\") + \"/employee\"",
+							"",
+							"",
+							"",
+							"pm.sendRequest({",
+							"    url: baseURL + \"/get?page=0&limit=3\",",
+							"    method: \"GET\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.collectionVariables.get(\"mockToken1\")",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Test Error Case: Page Zero\", function() {",
+							"        pm.expect(res).to.have.property('code', 400)",
+							"    })   ",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: baseURL + \"/get?page=grs&limit=grwy\",",
+							"    method: \"GET\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.collectionVariables.get(\"mockToken1\")",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Test Error Case: Invalid Queries\", function() {",
+							"        pm.expect(res).to.have.property('code', 400)",
+							"    })   ",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: baseURL + \"/get?page=99&limit=3\",",
+							"    method: \"GET\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.collectionVariables.get(\"mockToken1\")",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Test Error Case: Page out of range\", function() {",
+							"        pm.expect(res).to.have.property('code', 400)",
+							"    })   ",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: baseURL + \"/get\",",
+							"    method: \"GET\",",
+							"    header: {",
+							"        Authorization: \"Bearer \" + pm.collectionVariables.get(\"mockToken1\")",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Test Error Case: No pagination request\", function() {",
+							"        pm.expect(res).to.have.property('code', 200)",
+							"    })   ",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
 							""
 						],
 						"type": "text/javascript"
@@ -584,7 +555,873 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "{{tokenAdmin}}",
+							"value": "{{mockToken1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/employee/get?page=1&limit=2",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"employee",
+						"get"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "limit",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "GetEmployees - Success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/employee/get?page=1&limit=2",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"employee",
+								"get"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Mar 2023 09:17:23 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "305"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"employees\": [\n        {\n            \"id\": \"1274380d-7b86-4a7a-bf7c-bd868514f539\",\n            \"first_name\": \"Liam\",\n            \"last_name\": \"Brother\",\n            \"email\": \"liam.brother@aol.com\",\n            \"department\": \"ON4T\"\n        },\n        {\n            \"id\": \"a2262cd9-ee16-4148-9f0e-b9d60162f902\",\n            \"first_name\": \"Hans\",\n            \"last_name\": \"Peter\",\n            \"email\": \"hans.peter@gmail.com\",\n            \"department\": \"ON4T\"\n        }\n    ],\n    \"pageLimit\": 2\n}"
+				},
+				{
+					"name": "GetEmployees - Invalid Page Number",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/employee/get?page=0&limit=21111",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"employee",
+								"get"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "21111"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Mar 2023 09:22:09 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "77"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"invalid page number, page number can't be zero or negative\"\n}"
+				},
+				{
+					"name": "GetEmployees - Page Limit Reached",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/employee/get?page=555&limit=2",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"employee",
+								"get"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "555"
+								},
+								{
+									"key": "limit",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Mar 2023 09:22:44 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "68"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"page limit reached, please reduce the page number\"\n}"
+				}
+			]
+		},
+		{
+			"name": "UpdateEmployee",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 Check\", function(){",
+							"        pm.response.to.have.status(200)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"first_name\": \"Günther\"\n        \n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/{{mockId1}}/update",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"{{mockId1}}",
+						"update"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "UpdateEmployee - Sucessful Update",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"Günther\"        \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/{{mockId1}}/update",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"{{mockId1}}",
+								"update"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Mar 2023 09:24:13 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "72"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"MatchedCount\": 1,\n    \"ModifiedCount\": 1,\n    \"UpsertedCount\": 0,\n    \"UpsertedID\": null\n}"
+				},
+				{
+					"name": "UpdateEmployee - Invalid Payload",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"Günther\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/{{mockId1}}/update",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"{{mockId1}}",
+								"update"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Mar 2023 09:24:47 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "34"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"invalid payload\"\n}"
+				},
+				{
+					"name": "UpdateEmployee - Employee was not found",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n        \"first_name\": \"Günther\"\n        \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/123/update",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"123",
+								"update"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Mar 2023 09:25:24 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "24"
+						}
+					],
+					"cookie": [],
+					"body": "\"Employee was not found\""
+				}
+			]
+		},
+		{
+			"name": "CreateDutyRoster",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 Check\", function(){",
+							"        pm.response.to.have.status(200)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{mockToken1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"week\": 2,\n    \"duties\": {\n        \"default\": {\n            \"duty\": \"default\",\n            \"start\": \"2023-03-31T11:04:36+02:00\",\n            \"end\": \"2023-03-31T11:04:51+02:00\",\n            \"duration\": 30000\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/employee/addShift?id={{mockId1}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"employee",
+						"addShift"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "{{mockId1}}"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "CreateDutyRoster - Successful",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"week\": 2,\n    \"duties\": {\n        \"default\": {\n            \"duty\": \"default\",\n            \"start\": \"2023-03-31T11:04:36+02:00\",\n            \"end\": \"2023-03-31T11:04:51+02:00\",\n            \"duration\": 30000\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/employee/addShift?id={{mockId1}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"employee",
+								"addShift"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "{{mockId1}}"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Mar 2023 09:16:11 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "132"
+						}
+					],
+					"cookie": [],
+					"body": "[\n    {\n        \"week\": 2,\n        \"duties\": {\n            \"default\": {\n                \"duty\": \"default\",\n                \"start\": \"2023-03-31T11:04:36+02:00\",\n                \"end\": \"2023-03-31T11:04:51+02:00\",\n                \"total\": 0\n            }\n        }\n    }\n]"
+				},
+				{
+					"name": "CreateDutyRoster - Bad Payload",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"week\": 2,\n    \"duties\": {\n        \"default\": {\n            \"duty\": default\",\n            \"start\": \"2023-03-31T11:04:36+02:00\",\n            \"end\": \"2023-03-31T11:04:51+02:00\",\n            \"duration\": 30000\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/employee/addShift?id={{mockId1}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"employee",
+								"addShift"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "{{mockId1}}"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Mar 2023 09:26:30 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "30"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"Bad payload\"\n}"
+				},
+				{
+					"name": "CreateDutyRoster - No Update could be written",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"week\": 2,\n    \"duties\": {\n        \"default\": {\n            \"duty\": \"default\",\n            \"start\": \"2023-03-31T11:04:36+02:00\",\n            \"end\": \"2023-03-31T11:04:51+02:00\",\n            \"duration\": 30000\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/employee/addShift?id=123",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"employee",
+								"addShift"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "123"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Mar 2023 09:27:29 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "58"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"No update could be send to the database\"\n}"
+				}
+			]
+		},
+		{
+			"name": "GetDutyRoster",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"200 Check\", function(){",
+							"        pm.response.to.have.status(200)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{mockToken1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/employee/dutyRoster?department=ON4T&week=2",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"employee",
+						"dutyRoster"
+					],
+					"query": [
+						{
+							"key": "department",
+							"value": "ON4T"
+						},
+						{
+							"key": "week",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "GetDutyRoster - No results could be found to your query",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/employee/dutyRoster?department=ON4&week=2",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"employee",
+								"dutyRoster"
+							],
+							"query": [
+								{
+									"key": "department",
+									"value": "ON4"
+								},
+								{
+									"key": "week",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Mar 2023 09:28:46 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "58"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errorMessage\": \"No results could be found to your query\"\n}"
+				},
+				{
+					"name": "GetDutyRoster - Success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/employee/dutyRoster?department=ON4T&week=2",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"employee",
+								"dutyRoster"
+							],
+							"query": [
+								{
+									"key": "department",
+									"value": "ON4T"
+								},
+								{
+									"key": "week",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Mar 2023 09:29:29 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "156"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"Hans Peter id: bf4351c5-8250-45ad-8f00-823a98caec99\": {\n        \"default\": {\n            \"duty\": \"default\",\n            \"start\": \"2023-03-31T09:04:36Z\",\n            \"end\": \"2023-03-31T09:04:51Z\",\n            \"total\": 0\n        }\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "OAUTH Get Github Link",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/github",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"github"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Github Auth LINK",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/github",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"github"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Mar 2023 10:50:38 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "73"
+						}
+					],
+					"cookie": [],
+					"body": "\"https://github.com/login/oauth/authorize?client_id=xxx\""
+				}
+			]
+		},
+		{
+			"name": "OAUTH Github Redirect",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/authRedirect?code={{githubSecretCode}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"authRedirect"
+					],
+					"query": [
+						{
+							"key": "code",
+							"value": "{{githubSecretCode}}"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "OAUTH Github Redirect",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/authRedirect?code={{githubSecretCode}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"authRedirect"
+							],
+							"query": [
+								{
+									"key": "code",
+									"value": "{{githubSecretCode}}"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 31 Mar 2023 10:55:11 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "131"
+						}
+					],
+					"cookie": [],
+					"body": "\"Success! Your Guest-Id is: xxx and your guest-token is: yyy\""
+				}
+			]
+		},
+		{
+			"name": "Delete",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"var deleteURL = (userId) => {return pm.environment.get(\"host\") + \"/employee/\" + userId + \"/delete\"}",
+							"",
+							"pm.test(\"Delete User 3\", function(){",
+							"        pm.response.to.have.status(200)",
+							"})",
+							"pm.sendRequest({",
+							"    url: deleteURL(pm.collectionVariables.get(\"mockId2\")),",
+							"    method: \"DELETE\",",
+							"    header: {",
+							"        \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"mockToken2\")",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Delete User 2\", function(){",
+							"        pm.expect(res).to.have.status(200)",
+							"    })",
+							"    ",
+							"})",
+							"",
+							"pm.sendRequest({",
+							"    url: deleteURL(pm.collectionVariables.get(\"mockId1\")),",
+							"    method: \"DELETE\",",
+							"    header: {",
+							"        \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"mockToken1\")",
+							"    }",
+							"}, (err, res) => {",
+							"    pm.test(\"Delete User 1\", function(){",
+							"        pm.expect(res).to.have.status(200)",
+							"    })",
+							"    ",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{mockToken1}}",
 							"type": "string"
 						}
 					]
@@ -592,13 +1429,13 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{host}}/employee/4444/delete",
+					"raw": "{{host}}/employee/{{mockId3}}/delete",
 					"host": [
 						"{{host}}"
 					],
 					"path": [
 						"employee",
-						"4444",
+						"{{mockId3}}",
 						"delete"
 					]
 				}
@@ -724,76 +1561,42 @@
 			]
 		},
 		{
-			"name": "GetPaginatedEmployees",
+			"name": "Logout",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status check\", function(){",
-							"    pm.response.to.have.status(200)",
+							"var logoutURL = pm.environment.get(\"host\") + \"/Logout?id=\"",
+							"",
+							"pm.test(\"Logout User 1\", function(){",
+							"        pm.response.to.have.status(200)",
 							"})",
-							"",
-							"var baseURL = pm.environment.get(\"host\") + \"/employee\"",
-							"",
-							"",
-							"",
 							"pm.sendRequest({",
-							"    url: baseURL + \"/get?page=0&limit=3\",",
-							"    method: \"GET\",",
+							"    url: logoutURL + pm.collectionVariables.get(\"mockId2\"),",
+							"    method: \"POST\",",
 							"    header: {",
-							"        Authorization: \"Bearer \" + pm.environment.get(\"tokenAdmin\")",
+							"        \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"mockToken2\")",
 							"    }",
 							"}, (err, res) => {",
-							"    pm.test(\"Test Error Case: Page Zero\", function() {",
-							"        pm.expect(res).to.have.property('code', 400)",
-							"    })   ",
-							"})",
-							"",
-							"pm.sendRequest({",
-							"    url: baseURL + \"/get?page=grs&limit=grwy\",",
-							"    method: \"GET\",",
-							"    header: {",
-							"        Authorization: \"Bearer \" + pm.environment.get(\"tokenAdmin\")",
-							"    }",
-							"}, (err, res) => {",
-							"    pm.test(\"Test Error Case: Invalid Queries\", function() {",
-							"        pm.expect(res).to.have.property('code', 400)",
-							"    })   ",
+							"    pm.test(\"Logout User 2\", function(){",
+							"        pm.expect(res).to.have.status(200)",
+							"    })",
+							"    ",
 							"})",
 							"",
 							"pm.sendRequest({",
-							"    url: baseURL + \"/get?page=99&limit=3\",",
-							"    method: \"GET\",",
+							"    url: logoutURL + pm.collectionVariables.get(\"mockId3\"),",
+							"    method: \"POST\",",
 							"    header: {",
-							"        Authorization: \"Bearer \" + pm.environment.get(\"tokenAdmin\")",
+							"        \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"mockToken2\")",
 							"    }",
 							"}, (err, res) => {",
-							"    pm.test(\"Test Error Case: Page out of range\", function() {",
-							"        pm.expect(res).to.have.property('code', 400)",
-							"    })   ",
-							"})",
-							"",
-							"pm.sendRequest({",
-							"    url: baseURL + \"/get\",",
-							"    method: \"GET\",",
-							"    header: {",
-							"        Authorization: \"Bearer \" + pm.environment.get(\"tokenAdmin\")",
-							"    }",
-							"}, (err, res) => {",
-							"    pm.test(\"Test Error Case: No pagination request\", function() {",
-							"        pm.expect(res).to.have.property('code', 200)",
-							"    })   ",
+							"    pm.test(\"Logout User 3\", function(){",
+							"        pm.expect(res).to.have.status(200)",
+							"    })",
+							"    ",
 							"})"
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							""
 						],
 						"type": "text/javascript"
 					}
@@ -805,35 +1608,117 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "{{tokenAdmin}}",
+							"value": "{{mockToken1}}",
 							"type": "string"
 						}
 					]
 				},
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{host}}/employee/get?page=1&limit=2",
+					"raw": "{{host}}/Logout?id={{mockId1}}",
 					"host": [
 						"{{host}}"
 					],
 					"path": [
-						"employee",
-						"get"
+						"Logout"
 					],
 					"query": [
 						{
-							"key": "page",
-							"value": "1"
-						},
-						{
-							"key": "limit",
-							"value": "2"
+							"key": "id",
+							"value": "{{mockId1}}"
 						}
 					]
 				}
 			},
-			"response": []
+			"response": [
+				{
+					"name": "Logout - Success",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9090/Logout?id=2222",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"Logout"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "2222"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 12 Jul 2022 15:40:10 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "51"
+						}
+					],
+					"cookie": [],
+					"body": "\"Logut successfull. Your token is no longer valid.\""
+				},
+				{
+					"name": "Logout - Invalid Token",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9090/Logout?id=222",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9090",
+							"path": [
+								"Logout"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "222"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Tue, 12 Jul 2022 15:49:07 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "74"
+						}
+					],
+					"cookie": [],
+					"body": "\"The provided token is not valid. Please login to generate a valid token.\""
+				}
+			]
 		}
 	],
 	"auth": {
@@ -864,6 +1749,110 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "mockId1",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "mockId2",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "mockId3",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "mockFirstName1",
+			"value": "Hans",
+			"type": "string"
+		},
+		{
+			"key": "mockFirstName2",
+			"value": "John",
+			"type": "string"
+		},
+		{
+			"key": "mockFirstName3",
+			"value": "Liam",
+			"type": "string"
+		},
+		{
+			"key": "mockLastName1",
+			"value": "Peter",
+			"type": "string"
+		},
+		{
+			"key": "mockLastName2",
+			"value": "Adams",
+			"type": "string"
+		},
+		{
+			"key": "mockLastName3",
+			"value": "Brother",
+			"type": "string"
+		},
+		{
+			"key": "mockEmail1",
+			"value": "hans.peter@gmail.com",
+			"type": "string"
+		},
+		{
+			"key": "mockEmail2",
+			"value": "john.adams@gmx.de",
+			"type": "string"
+		},
+		{
+			"key": "mockEmail3",
+			"value": "liam.brother@aol.com",
+			"type": "string"
+		},
+		{
+			"key": "mockUsername1",
+			"value": "h.peter",
+			"type": "string"
+		},
+		{
+			"key": "mockUsername2",
+			"value": "johnnyadams",
+			"type": "string"
+		},
+		{
+			"key": "mockUsername3",
+			"value": "liambigbrother",
+			"type": "string"
+		},
+		{
+			"key": "mockPassword1",
+			"value": "hanspeter123",
+			"type": "string"
+		},
+		{
+			"key": "mockPassword2",
+			"value": "johnadamsisthebest",
+			"type": "string"
+		},
+		{
+			"key": "mockPassword3",
+			"value": "cheesecake",
+			"type": "string"
+		},
+		{
+			"key": "mockToken1",
+			"value": ""
+		},
+		{
+			"key": "mockToken2",
+			"value": ""
+		},
+		{
+			"key": "mockToken3",
+			"value": ""
 		}
 	]
 }
