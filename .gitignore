@@ -1,1 +1,5 @@
 .env
+.idea/
+.github/
+.scannerwork/
+coverage.out
